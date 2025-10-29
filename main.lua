@@ -1074,7 +1074,6 @@ local function LoadTweensConfig_CreateVisuals()
     Vector3.new(-149.5, -33.9, -119.1)
    },
  }
-
     local oldFolder = workspace:FindFirstChild("RedSticks")
     if oldFolder then oldFolder:Destroy() end
 
