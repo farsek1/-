@@ -80,8 +80,8 @@ local function LoadTweensConfig_CreateVisuals()
             Vector3.new(-52.6669, -120.2267, -393.7919),
             Vector3.new(-45.2733, -95.8739, -384.5992),
             Vector3.new(-43.7066, -89.2775, -380.1008),
-      },
-      }
+        },
+        }
            local Points = {
            Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
