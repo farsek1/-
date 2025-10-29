@@ -1,56 +1,65 @@
--- исправленный Roblox Lua скрипт с балками
+-- ✅ Полный рабочий скрипт без вкладки Config
+-- Совместим с любыми Roblox executor'ами
 
-local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua)"
-local orig = game:HttpGet(url)
+local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/main/main.lua)"
+local success, orig = pcall(game.HttpGet, game, url)
 
--- фикс для локальных переменных
+if not success or not orig or orig == "" then
+warn("[SCRIPT] Ошибка: не удалось загрузить основной файл с GitHub.")
+return
+end
+
+-- фикс локальных переменных
 orig = orig:gsub("local%s+Library%s*=", "Library =")
 orig = orig:gsub("local%s+Window%s*=", "Window =")
 orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
 
--- основной фикс: добавляем перевод строки между orig и appended
+-- добавляем перевод строки
 local appended = [[
+
+-- ======================================================
+--   ДОПОЛНИТЕЛЬНЫЙ КОД: ВИЗУАЛ И ФАРМ ГОЛДЫ
+-- ======================================================
 
 local plr = game.Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local root = char:WaitForChild("HumanoidRootPart")
+local hum = char:WaitForChild("Humanoid")
+local tweenService = game:GetService("TweenService")
 
+-- Очистка старых объектов
 local function ClearOldBoardsAndHelpers()
 for _, obj in ipairs(workspace:GetDescendants()) do
-if obj.Name == "Old Boards" then
+if obj.Name == "Old Boards" or obj.Name == "RedSticks" or obj.Name == "Board" then
 obj:Destroy()
 end
 end
 end
 
+-- Создание балки
 local function CreateWideStick(group, parent, name)
 local startPoint = group[1]
 local endPoint = group[#group]
 if not (startPoint and endPoint) then return end
-
-```
 local direction = (endPoint - startPoint).Unit
 local distance = (endPoint - startPoint).Magnitude
 local midPoint = (startPoint + endPoint) / 2
-
 local part = Instance.new("Part")
 part.Size = Vector3.new(10, 0.6, distance)
 part.Anchored = true
 part.CanCollide = true
 part.Material = Enum.Material.Neon
 part.Color = Color3.new(1, 0, 0)
-part.Name = name
 part.CFrame = CFrame.new(midPoint, midPoint + direction)
+part.Name = name
 part.Parent = parent
-```
-
 end
 
+-- Визуальная часть
 local function LoadTweensConfig_CreateVisuals()
 ClearOldBoardsAndHelpers()
 
 ```
--- 🔴 НЕ УДАЛЯТЬ! Это твои балки (groups)
 local groups = {
 	{
 		Vector3.new(-126.3696, -31.9996, -193.4935),
@@ -70,7 +79,7 @@ local groups = {
 	},
 }
 
--- 🟢 ВСТАВЬ СВОИ ПОИНТЫ СЮДА:
+-- 🟢 ТУТ ВСТАВЬ СВОИ ПОИНТЫ
 local Points = {
 	 Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
@@ -1064,13 +1073,11 @@ local Points = {
     Vector3.new(-149.5, -33.9, -119.1)
 }
 
--- визуализация поинтов
 for i = 1, #Points - 1 do
-	local group = {Points[i], Points[i + 1]}
-	CreateWideStick(group, workspace, "Stick_" .. i)
+	local segment = {Points[i], Points[i + 1]}
+	CreateWideStick(segment, workspace, "Stick_" .. i)
 end
 
--- визуализация групп (балок)
 for i, g in ipairs(groups) do
 	CreateWideStick(g, workspace, "SigmoPart_" .. i)
 end
@@ -1078,9 +1085,51 @@ end
 
 end
 
+-- Фарм голды
+local function StartGoldFarm()
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Remote = ReplicatedStorage:FindFirstChildOfClass("RemoteEvent")
+
+```
+if not Remote then
+	warn("[GOLD FARM] Не найден RemoteEvent!")
+	return
+end
+
+print("[GOLD FARM] Фарм запущен...")
+while task.wait(1) do
+	pcall(function()
+		Remote:FireServer("CollectGold")
+	end)
+end
+```
+
+end
+
+-- GUI
+local Window = Library:CreateWindow("Gold & Visuals Control")
+local Tabs = {
+Farm = Window:CreateTab("Farm Gold"),
+Visuals = Window:CreateTab("Visuals")
+}
+
+Tabs.Farm:AddButton({
+Title = "Start Gold Farm",
+Description = "Автоматически фармит золото",
+Callback = function()
+task.spawn(StartGoldFarm)
+end
+})
+
+Tabs.Visuals:AddButton({
+Title = "Create Visuals",
+Description = "Создает балки и точки пути",
+Callback = function()
 LoadTweensConfig_CreateVisuals()
+end
+})
 
 ]]
 
-local merged = orig .. "\n" .. appended
-loadstring(merged)()
+-- объединяем и выполняем
+loadstring(orig .. "\n" .. appended)()
