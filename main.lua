@@ -1,20 +1,16 @@
 -- ✅ Полный рабочий скрипт без вкладки Config
--- Совместим с любыми Roblox executor'ами
+-- Roblox Lua (Luau)
 
-local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/main/main.lua)"
-local success, orig = pcall(game.HttpGet, game, url)
+-- подгружаем основной скрипт
+local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua)"
+local orig = game:HttpGet(url)
 
-if not success or not orig or orig == "" then
-warn("[SCRIPT] Ошибка: не удалось загрузить основной файл с GitHub.")
-return
-end
-
--- фикс локальных переменных
+-- исправляем локальные переменные
 orig = orig:gsub("local%s+Library%s*=", "Library =")
 orig = orig:gsub("local%s+Window%s*=", "Window =")
 orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
 
--- добавляем перевод строки
+-- добавляем \n, чтобы не вызывало синтаксических ошибок
 local appended = [[
 
 -- ======================================================
@@ -27,7 +23,7 @@ local root = char:WaitForChild("HumanoidRootPart")
 local hum = char:WaitForChild("Humanoid")
 local tweenService = game:GetService("TweenService")
 
--- Очистка старых объектов
+-- 🧱 Очистка старых объектов
 local function ClearOldBoardsAndHelpers()
 for _, obj in ipairs(workspace:GetDescendants()) do
 if obj.Name == "Old Boards" or obj.Name == "RedSticks" or obj.Name == "Board" then
@@ -36,14 +32,17 @@ end
 end
 end
 
--- Создание балки
+-- 🔴 Создание балки (красная линия)
 local function CreateWideStick(group, parent, name)
 local startPoint = group[1]
 local endPoint = group[#group]
 if not (startPoint and endPoint) then return end
+
+```
 local direction = (endPoint - startPoint).Unit
 local distance = (endPoint - startPoint).Magnitude
 local midPoint = (startPoint + endPoint) / 2
+
 local part = Instance.new("Part")
 part.Size = Vector3.new(10, 0.6, distance)
 part.Anchored = true
@@ -53,9 +52,11 @@ part.Color = Color3.new(1, 0, 0)
 part.CFrame = CFrame.new(midPoint, midPoint + direction)
 part.Name = name
 part.Parent = parent
+```
+
 end
 
--- Визуальная часть
+-- 🧩 Визуальная часть
 local function LoadTweensConfig_CreateVisuals()
 ClearOldBoardsAndHelpers()
 
@@ -79,7 +80,7 @@ local groups = {
 	},
 }
 
--- 🟢 ТУТ ВСТАВЬ СВОИ ПОИНТЫ
+-- 🟢 ТУТ ВСТАВЬ СВОИ ТОЧКИ (Points)
 local Points = {
 	 Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
@@ -1085,18 +1086,19 @@ end
 
 end
 
--- Фарм голды
+-- 💰 Фарм голды (основная логика)
 local function StartGoldFarm()
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remote = ReplicatedStorage:FindFirstChildOfClass("RemoteEvent")
+local Remote = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChildOfClass("RemoteEvent")
 
 ```
 if not Remote then
-	warn("[GOLD FARM] Не найден RemoteEvent!")
+	warn("[GOLD FARM] Не найден RemoteEvent в ReplicatedStorage!")
 	return
 end
 
 print("[GOLD FARM] Фарм запущен...")
+
 while task.wait(1) do
 	pcall(function()
 		Remote:FireServer("CollectGold")
@@ -1106,13 +1108,14 @@ end
 
 end
 
--- GUI
+-- 🪟 GUI ВКЛАДКИ
 local Window = Library:CreateWindow("Gold & Visuals Control")
 local Tabs = {
 Farm = Window:CreateTab("Farm Gold"),
 Visuals = Window:CreateTab("Visuals")
 }
 
+-- Кнопка: старт фарма
 Tabs.Farm:AddButton({
 Title = "Start Gold Farm",
 Description = "Автоматически фармит золото",
@@ -1121,15 +1124,20 @@ task.spawn(StartGoldFarm)
 end
 })
 
+-- Кнопка: визуализация маршрута
 Tabs.Visuals:AddButton({
 Title = "Create Visuals",
-Description = "Создает балки и точки пути",
+Description = "Создает визуальные балки и точки пути",
 Callback = function()
 LoadTweensConfig_CreateVisuals()
 end
 })
 
+-- Config вкладка полностью удалена
 ]]
 
--- объединяем и выполняем
-loadstring(orig .. "\n" .. appended)()
+-- объединяем с оригиналом с переводом строки
+local merged = orig .. "\n" .. appended
+
+-- выполняем объединённый код
+loadstring(merged)()
