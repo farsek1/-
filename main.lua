@@ -3,6 +3,7 @@ local orig = game:HttpGet(url)
 orig = orig:gsub("local%s+Library%s*=", "Library =")
 orig = orig:gsub("local%s+Window%s*=", "Window =")
 orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
+
 local appended = [[
 
 local packets = (game:GetService("ReplicatedStorage").Modules and require(game:GetService("ReplicatedStorage").Modules.Packets)) or (packets)
@@ -40,22 +41,25 @@ local function CreateWideStick(group, parent, name)
     local startPoint = group[1]
     local endPoint = group[#group]
     if not (startPoint and endPoint) then return end
+
     local direction = (endPoint - startPoint).Unit
     local distance = (endPoint - startPoint).Magnitude
     local midPoint = (startPoint + endPoint) / 2
     local right = Vector3.new(direction.Z, 0, -direction.X)
     midPoint = midPoint + right * 2
+
     if name ~= "SigmoPart_3" then
         midPoint = midPoint - Vector3.new(0, 1.2, 0)
     else
         midPoint = midPoint - Vector3.new(0, 0.5, 0)
     end
+
     local part = Instance.new("Part")
     part.Size = Vector3.new(10, 0.6, distance)
     part.Anchored = true
     part.CanCollide = true
     part.Material = Enum.Material.Neon
-    part.Color = Color3.new(1, 0, 0)
+    part.Color = Color3.new(1, 0, 0) -- красные балки
     part.Transparency = 0
     part.Reflectance = 0.05
     part.Name = name
@@ -64,6 +68,8 @@ local function CreateWideStick(group, parent, name)
 end
 
 local function LoadTweensConfig_CreateVisuals()
+    ClearOldBoardsAndHelpers()
+
     local groups = {
         {
             Vector3.new(-126.3696, -31.9996, -193.4935),
@@ -81,9 +87,11 @@ local function LoadTweensConfig_CreateVisuals()
             Vector3.new(-45.2733, -95.8739, -384.5992),
             Vector3.new(-43.7066, -89.2775, -380.1008),
         },
-        }
-           local Points = {
-           Vector3.new(-147.6, -34.3, -114.5),
+    }
+
+    
+    local Points = {
+        Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
     Vector3.new(-142.1, -35.2, -134.9),
     Vector3.new(-139.4, -35.1, -145.1),
@@ -1072,207 +1080,48 @@ local function LoadTweensConfig_CreateVisuals()
     Vector3.new(-163.1, -11.1, -124.2),
     Vector3.new(-157.9, -18.6, -121.8),
     Vector3.new(-154.7, -26.7, -121.2),
-    Vector3.new(-149.5, -33.9, -119.1)
-   },
- }
+    Vector3.new(-149.5, -33.9, -119.1),
+    }
 
-   for _, pos in ipairs(Points) do
-    local sphere = Instance.new("Part")
-    sphere.Shape = Enum.PartType.Ball
-    sphere.Anchored = true
-    sphere.Size = Vector3.new(0.5, 0.5, 0.5)
-    sphere.Color = Color3.fromRGB(255, 100, 200) -- 🌸 розовый цвет
-    sphere.Material = Enum.Material.Neon
-    sphere.Position = pos
-    sphere.Parent = workspace
-end
-
-   local oldFolder = workspace:FindFirstChild("RedSticks")
+ 
+    local oldFolder = workspace:FindFirstChild("RedSticks")
     if oldFolder then oldFolder:Destroy() end
 
     local folder = Instance.new("Folder")
     folder.Name = "RedSticks"
     folder.Parent = workspace
+
     for i, group in ipairs(groups) do
         if #group >= 2 then
             CreateWideStick(group, folder, "SigmoPart_" .. i)
         end
     end
 
-    local success, raw = pcall(function() return readfile("TweensCFG1.json") end)
-    if not success then
-        _G.walkPts = _G.walkPts or {}
-        return
-    end
+    -- создаём розовые точки
+    local oldPointsFolder = workspace:FindFirstChild("PinkPoints")
+    if oldPointsFolder then oldPointsFolder:Destroy() end
 
-    local ok, data = pcall(function() return httpservice:JSONDecode(raw) end)
-    if not ok or not data or not data.position then
-        _G.walkPts = _G.walkPts or {}
-        return
-    end
+    local pointsFolder = Instance.new("Folder")
+    pointsFolder.Name = "PinkPoints"
+    pointsFolder.Parent = workspace
 
-    local out = {}
-    local folder2 = Instance.new("Folder", workspace)
-    folder2.Name = "WalkerSpheres"
-    for i, p in ipairs(data.position) do
-        local vec = Vector3.new(p.X, p.Y, p.Z)
-        out[#out + 1] = vec
-        local part = Instance.new("Part", folder2)
-        part.Shape = Enum.PartType.Ball
-        part.Anchored = true
-        part.CanCollide = false
-        part.Size = Vector3.new(1.5, 1.5, 1.5)
-        part.Position = vec
-        part.Color = Color3.new(1, 0, 0)
-        part.Transparency = 0.25
-        part.Name = "WalkerDot_" .. i
-    end
-    _G.walkPts = out
-end
-
-local function StartWalkingLoop()
-    local lp = game:GetService("Players").LocalPlayer
-    local humRef = (lp.Character or lp.CharacterAdded:Wait()):WaitForChild("Humanoid")
-    humRef.WalkSpeed = 16
-    task.spawn(function()
-        while true do
-            for _, pos in ipairs(_G.walkPts or {}) do
-                humRef:MoveTo(pos)
-                humRef.MoveToFinished:Wait()
-            end
-            task.wait(0.5)
-        end
-    end)
-end
-
-if not Tabs then
-    if Window then
-        Tabs = {
-            Main = Window:AddTab({ Title = "Main", Icon = "menu" }),
-            Combat = Window:AddTab({ Title = "Combat", Icon = "axe" }),
-            Map = Window:AddTab({ Title = "Map", Icon = "trees" }),
-            Pickup = Window:AddTab({ Title = "Pickup", Icon = "backpack" }),
-            Farming = Window:AddTab({ Title = "Farming", Icon = "sprout" }),
-            FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" }),
-            Extra = Window:AddTab({ Title = "Extra", Icon = "plus" }),
-            Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
-        }
-    else
-        Tabs = {}
+    for _, pos in ipairs(Points) do
+        local sphere = Instance.new("Part")
+        sphere.Shape = Enum.PartType.Ball
+        sphere.Anchored = true
+        sphere.CanCollide = false
+        sphere.Size = Vector3.new(0.5, 0.5, 0.5)
+        sphere.Color = Color3.fromRGB(255, 100, 200) -- 🌸 розовые
+        sphere.Material = Enum.Material.Neon
+        sphere.Position = pos
+        sphere.Parent = pointsFolder
     end
 end
 
-if not Tabs.FarmGold and Window then
-    Tabs.FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" })
-end
-
-Tabs.FarmGold:CreateButton({
-    Title = "Delete Old Boards",
-    Callback = function()
-        ClearOldBoardsAndHelpers()
-    end
-})
-
-Tabs.FarmGold:CreateButton({
-    Title = "Load Tween Config (TweensCFG1.json)",
-    Callback = function()
-        pcall(LoadTweensConfig_CreateVisuals)
-    end
-})
-
-Tabs.FarmGold:CreateButton({
-    Title = "Start Walking (use after Load Config)",
-    Callback = function()
-        pcall(StartWalkingLoop)
-    end
-})
-
-if Tabs.Farming then
-    local autofarmgoldtoggle = Tabs.Farming:CreateToggle("autofarmgoldtoggle", {
-        Title = "Auto Farm Gold",
-        Default = false
-    })
-    local autofarmgoldrange = Tabs.Farming:CreateSlider("autofarmgoldrange", { Title = "Range", Min = 5, Max = 200, Rounding = 1, Default = 30 })
-    local autofarmgoldcooldown = Tabs.Farming:CreateSlider("autofarmgoldcooldown", { Title = "Swing Delay (s)", Min = 0.01, Max = 1.5, Rounding = 2, Default = 0.12 })
-
-    local function swingtool_local(eids)
-        if packets and packets.SwingTool and packets.SwingTool.send then
-            packets.SwingTool.send(eids)
-        end
-    end
-
-    task.spawn(function()
-        while true do
-            if not autofarmgoldtoggle.Value then
-                task.wait(0.2)
-            else
-                local range = tonumber(autofarmgoldrange.Value) or 30
-                local cooldown = tonumber(autofarmgoldcooldown.Value) or 0.12
-                local targets = {}
-                for _, r in pairs(workspace:GetChildren()) do
-                    if r:IsA("Model") and (r.Name == "Gold Node" or (r.Name:lower():find("gold") and r.GetAttribute and r:GetAttribute(r, "EntityID"))) then
-                        local eid = r.GetAttribute and r:GetAttribute(r, "EntityID")
-                        local ppart = r.PrimaryPart or r:FindFirstChildWhichIsA("BasePart")
-                        if eid and ppart then
-                            local dist = (ppart.Position - root.Position).Magnitude
-                            if dist <= range then
-                                table.insert(targets, { eid = eid, dist = dist })
-                            end
-                        end
-                    end
-                end
-                if workspace:FindFirstChild("Resources") then
-                    for _, res in pairs(workspace.Resources:GetChildren()) do
-                        if res:IsA("Model") and res.GetAttribute and res:GetAttribute(res, "EntityID") then
-                            local name = res.Name or ""
-                            if name:lower():find("gold") or name:lower():find("raw gold") then
-                                local eid = res:GetAttribute(res, "EntityID")
-                                local ppart = res.PrimaryPart or res:FindFirstChildWhichIsA("BasePart")
-                                if eid and ppart then
-                                    local dist = (ppart.Position - root.Position).Magnitude
-                                    if dist <= range then
-                                        table.insert(targets, { eid = eid, dist = dist })
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-                if #targets > 0 then
-                    table.sort(targets, function(a, b) return a.dist < b.dist end)
-                    local sel = {}
-                    for i = 1, math.min(6, #targets) do
-                        table.insert(sel, targets[i].eid)
-                    end
-                    pcall(function() swingtool_local(sel) end)
-                end
-                if packets and packets.Pickup and packets.Pickup.send then
-                    for _, itm in ipairs(workspace:GetChildren()) do
-                        if (itm:IsA("BasePart") or itm:IsA("MeshPart")) and itm.GetAttribute and itm:GetAttribute(itm, "EntityID") then
-                            local name = itm.Name or ""
-                            local lowered = name:lower()
-                            if lowered:find("gold") or lowered:find("coin") then
-                                local eid = itm:GetAttribute(itm, "EntityID")
-                                local dist = (itm.Position - root.Position).Magnitude
-                                if dist <= (range or 30) then
-                                    pcall(function() packets.Pickup.send(eid) end)
-                                end
-                            end
-                        end
-                    end
-                end
-                task.wait(cooldown)
-            end
-        end
-    end)
-end
+-- вызываем визуализацию
+LoadTweensConfig_CreateVisuals()
 
 ]]
 
-local merged = orig .. appended
-local fn,err = loadstring(merged)
-if not fn then
-    error("Failed to compile merged script: "..tostring(err))
-else
-    fn()
-end
+
+loadstring(orig .. appended)()
