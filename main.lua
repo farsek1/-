@@ -1,0 +1,1265 @@
+local url = "https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua"
+local orig = game:HttpGet(url)
+orig = orig:gsub("local%s+Library%s*=", "Library =")
+orig = orig:gsub("local%s+Window%s*=", "Window =")
+orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
+local appended = [[
+
+local packets = (game:GetService("ReplicatedStorage").Modules and require(game:GetService("ReplicatedStorage").Modules.Packets)) or (packets)
+local plr = game.Players.LocalPlayer
+local char = plr.Character or plr.CharacterAdded:Wait()
+local root = char:WaitForChild("HumanoidRootPart")
+local hum = char:WaitForChild("Humanoid")
+local httpservice = game:GetService("HttpService")
+local tspmo = game:GetService("TweenService")
+
+local function ClearOldBoardsAndHelpers()
+    local b = workspace:FindFirstChild("Board")
+    if b then b:Destroy() end
+    local vFolder = workspace:FindFirstChild("WalkerSpheres")
+    if vFolder then vFolder:Destroy() end
+    local folder = workspace:FindFirstChild("RedSticks")
+    if folder then folder:Destroy() end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("MeshPart") and obj.MeshId and tostring(obj.MeshId):find("4823036") then
+            obj:Destroy()
+        elseif obj:IsA("Part") then
+            for _, m in ipairs(obj:GetChildren()) do
+                if m:IsA("SpecialMesh") and m.MeshId and tostring(m.MeshId):find("4823036") then
+                    obj:Destroy()
+                    break
+                end
+            end
+        elseif obj.Name == "Old Boards" then
+            obj:Destroy()
+        end
+    end
+end
+
+local function CreateWideStick(group, parent, name)
+    local startPoint = group[1]
+    local endPoint = group[#group]
+    if not (startPoint and endPoint) then return end
+    local direction = (endPoint - startPoint).Unit
+    local distance = (endPoint - startPoint).Magnitude
+    local midPoint = (startPoint + endPoint) / 2
+    local right = Vector3.new(direction.Z, 0, -direction.X)
+    midPoint = midPoint + right * 2
+    if name ~= "SigmoPart_3" then
+        midPoint = midPoint - Vector3.new(0, 1.2, 0)
+    else
+        midPoint = midPoint - Vector3.new(0, 0.5, 0)
+    end
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(10, 0.6, distance)
+    part.Anchored = true
+    part.CanCollide = true
+    part.Material = Enum.Material.Neon
+    part.Color = Color3.new(1, 0, 0)
+    part.Transparency = 0
+    part.Reflectance = 0.05
+    part.Name = name
+    part.Parent = parent
+    part.CFrame = CFrame.new(midPoint, midPoint + direction)
+end
+
+local function LoadTweensConfig_CreateVisuals()
+    local groups = {
+        {
+            Vector3.new(-126.3696, -31.9996, -193.4935),
+            Vector3.new(-125.4963, -27.6570, -197.6518),
+            Vector3.new(-125.5180, -20.3162, -197.8057),
+            Vector3.new(-124.5315, -6.9844, -207.8662),
+        },
+        {
+            Vector3.new(-202.3378, 4.8070, -622.1143),
+            Vector3.new(-206.2624, 17.9093, -624.6749),
+            Vector3.new(-210.2882, 22.7560, -625.7983),
+        },
+        {
+            Vector3.new(-52.6669, -120.2267, -393.7919),
+            Vector3.new(-45.2733, -95.8739, -384.5992),
+            Vector3.new(-43.7066, -89.2775, -380.1008),
+        },
+        {
+           Vector3.new(-147.6, -34.3, -114.5),
+    Vector3.new(-144.8, -35.0, -125.0),
+    Vector3.new(-142.1, -35.2, -134.9),
+    Vector3.new(-139.4, -35.1, -145.1),
+    Vector3.new(-136.6, -35.0, -155.4),
+    Vector3.new(-137.9, -35.0, -162.1),
+    Vector3.new(-141.8, -34.9, -164.0),
+    Vector3.new(-150.8, -33.1, -166.1),
+    Vector3.new(-142.1, -34.8, -164.1),
+    Vector3.new(-150.5, -33.3, -166.1),
+    Vector3.new(-141.5, -34.9, -164.0),
+    Vector3.new(-151.1, -32.8, -166.2),
+    Vector3.new(-140.2, -35.0, -163.8),
+    Vector3.new(-150.3, -33.2, -166.2),
+    Vector3.new(-138.6, -35.0, -163.4),
+    Vector3.new(-129.5, -35.0, -167.4),
+    Vector3.new(-119.5, -35.0, -173.6),
+    Vector3.new(-113.1, -33.6, -175.9),
+    Vector3.new(-107.7, -28.2, -178.1),
+    Vector3.new(-103.0, -25.7, -183.4),
+    Vector3.new(-109.3, -26.6, -190.8),
+    Vector3.new(-102.7, -25.5, -183.0),
+    Vector3.new(-109.5, -26.6, -191.0),
+    Vector3.new(-103.1, -25.6, -183.5),
+    Vector3.new(-108.9, -26.6, -190.3),
+    Vector3.new(-103.5, -25.7, -184.0),
+    Vector3.new(-110.9, -26.5, -190.0),
+    Vector3.new(-116.9, -26.1, -191.1),
+    Vector3.new(-119.9, -26.7, -191.3),
+    Vector3.new(-122.3, -23.9, -194.4),
+    Vector3.new(-122.0, -17.5, -199.6),
+    Vector3.new(-121.7, -11.3, -203.8),
+    Vector3.new(-122.4, -6.4, -207.8),
+    Vector3.new(-128.0, -6.4, -209.4),
+    Vector3.new(-134.9, -6.5, -207.0),
+    Vector3.new(-127.8, -6.6, -209.2),
+    Vector3.new(-121.6, -5.9, -208.8),
+    Vector3.new(-128.0, -6.6, -209.2),
+    Vector3.new(-135.2, -6.8, -206.2),
+    Vector3.new(-129.8, -5.9, -210.3),
+    Vector3.new(-121.8, -5.4, -209.8),
+    Vector3.new(-134.3, -6.6, -207.4),
+    Vector3.new(-126.1, -4.6, -213.1),
+    Vector3.new(-116.1, -3.0, -219.8),
+    Vector3.new(-104.9, -3.0, -225.4),
+    Vector3.new(-95.6, -3.0, -231.5),
+    Vector3.new(-86.1, -3.0, -237.7),
+    Vector3.new(-76.7, -3.0, -243.8),
+    Vector3.new(-68.0, -3.0, -249.5),
+    Vector3.new(-63.0, -3.0, -252.8),
+    Vector3.new(-57.3, -3.0, -258.4),
+    Vector3.new(-48.2, -3.0, -264.1),
+    Vector3.new(-36.6, -3.0, -269.3),
+    Vector3.new(-24.6, -3.0, -274.7),
+    Vector3.new(-11.2, -3.0, -280.6),
+    Vector3.new(1.2, -3.0, -286.2),
+    Vector3.new(14.4, -3.0, -292.1),
+    Vector3.new(27.3, -3.0, -297.8),
+    Vector3.new(39.4, -3.0, -303.3),
+    Vector3.new(51.4, -3.0, -308.6),
+    Vector3.new(63.0, -3.0, -313.8),
+    Vector3.new(73.3, -3.0, -318.4),
+    Vector3.new(82.8, -3.0, -326.7),
+    Vector3.new(91.6, -3.0, -336.3),
+    Vector3.new(106.0, -3.0, -345.1),
+    Vector3.new(119.3, -3.0, -354.1),
+    Vector3.new(129.8, -3.0, -361.1),
+    Vector3.new(141.5, -3.0, -369.0),
+    Vector3.new(153.9, -3.0, -377.3),
+    Vector3.new(164.7, -3.0, -384.6),
+    Vector3.new(176.5, -3.0, -392.6),
+    Vector3.new(185.5, -3.0, -398.6),
+    Vector3.new(204.0, -3.0, -402.5),
+    Vector3.new(218.5, -3.0, -401.0),
+    Vector3.new(234.4, -3.0, -399.4),
+    Vector3.new(252.1, -5.2, -398.0),
+    Vector3.new(267.5, -7.1, -396.9),
+    Vector3.new(282.2, -7.8, -396.0),
+    Vector3.new(297.5, -7.6, -395.0),
+    Vector3.new(310.8, -7.7, -394.1),
+    Vector3.new(324.7, -7.0, -393.2),
+    Vector3.new(340.9, -7.1, -392.1),
+    Vector3.new(358.0, -7.0, -391.0),
+    Vector3.new(374.2, -7.8, -389.9),
+    Vector3.new(391.0, -7.5, -388.8),
+    Vector3.new(408.4, -7.1, -387.7),
+    Vector3.new(425.7, -7.3, -386.6),
+    Vector3.new(441.4, -7.3, -385.5),
+    Vector3.new(457.0, -7.1, -384.5),
+    Vector3.new(474.8, -7.8, -383.3),
+    Vector3.new(489.4, -7.0, -382.4),
+    Vector3.new(506.7, -5.0, -383.0),
+    Vector3.new(519.1, -3.6, -384.3),
+    Vector3.new(530.7, -3.1, -385.5),
+    Vector3.new(537.7, 2.0, -386.2),
+    Vector3.new(545.1, 10.0, -387.0),
+    Vector3.new(560.5, 9.9, -388.5),
+    Vector3.new(571.9, 7.5, -389.7),
+    Vector3.new(581.4, 2.5, -389.5),
+    Vector3.new(589.9, -3.4, -386.2),
+    Vector3.new(600.5, -4.9, -383.1),
+    Vector3.new(617.4, -7.2, -386.4),
+    Vector3.new(606.9, -5.6, -384.0),
+    Vector3.new(618.4, -7.2, -386.6),
+    Vector3.new(607.0, -6.0, -383.9),
+    Vector3.new(616.7, -7.2, -386.2),
+    Vector3.new(606.8, -5.6, -383.8),
+    Vector3.new(618.4, -7.2, -386.5),
+    Vector3.new(623.6, -7.7, -381.3),
+    Vector3.new(633.5, -7.3, -377.1),
+    Vector3.new(639.4, -6.5, -367.9),
+    Vector3.new(636.7, -7.0, -379.4),
+    Vector3.new(639.2, -6.6, -368.6),
+    Vector3.new(636.6, -6.9, -379.8),
+    Vector3.new(639.4, -6.7, -367.7),
+    Vector3.new(636.6, -6.9, -379.4),
+    Vector3.new(639.0, -6.8, -369.0),
+    Vector3.new(634.9, -7.0, -362.1),
+    Vector3.new(630.6, -6.1, -356.8),
+    Vector3.new(626.4, -6.9, -355.9),
+    Vector3.new(617.7, -7.4, -353.9),
+    Vector3.new(627.8, -6.7, -356.3),
+    Vector3.new(617.1, -7.3, -353.8),
+    Vector3.new(627.8, -6.5, -356.3),
+    Vector3.new(618.2, -7.5, -354.1),
+    Vector3.new(627.4, -6.7, -356.3),
+    Vector3.new(616.0, -7.3, -353.7),
+    Vector3.new(604.8, -7.2, -354.1),
+    Vector3.new(612.3, -7.3, -350.2),
+    Vector3.new(605.6, -7.2, -353.8),
+    Vector3.new(612.2, -7.1, -349.8),
+    Vector3.new(605.4, -7.1, -352.8),
+    Vector3.new(612.4, -6.9, -349.6),
+    Vector3.new(604.0, -7.4, -355.8),
+    Vector3.new(599.4, -8.7, -366.3),
+    Vector3.new(595.1, -7.4, -374.9),
+    Vector3.new(590.6, -3.4, -382.7),
+    Vector3.new(586.6, -2.1, -385.2),
+    Vector3.new(581.5, 1.4, -387.3),
+    Vector3.new(569.4, 8.1, -391.9),
+    Vector3.new(558.4, 11.8, -396.1),
+    Vector3.new(549.1, 12.5, -399.6),
+    Vector3.new(548.7, 16.2, -408.2),
+    Vector3.new(547.7, 22.7, -412.9),
+    Vector3.new(547.7, 29.5, -420.5),
+    Vector3.new(555.2, 35.6, -424.2),
+    Vector3.new(560.3, 41.6, -423.1),
+    Vector3.new(568.3, 44.8, -419.8),
+    Vector3.new(578.8, 48.2, -416.9),
+    Vector3.new(591.2, 48.7, -413.6),
+    Vector3.new(605.2, 48.9, -409.8),
+    Vector3.new(617.4, 52.0, -406.4),
+    Vector3.new(629.2, 52.2, -407.1),
+    Vector3.new(639.2, 56.5, -410.0),
+    Vector3.new(646.4, 62.7, -411.2),
+    Vector3.new(654.6, 67.8, -412.7),
+    Vector3.new(661.1, 75.5, -413.8),
+    Vector3.new(670.2, 81.4, -413.4),
+    Vector3.new(677.4, 84.2, -406.6),
+    Vector3.new(685.1, 84.3, -399.8),
+    Vector3.new(687.9, 87.4, -392.2),
+    Vector3.new(684.6, 82.9, -387.0),
+    Vector3.new(690.4, 88.1, -391.8),
+    Vector3.new(686.1, 85.4, -397.5),
+    Vector3.new(691.4, 89.4, -390.1),
+    Vector3.new(686.9, 86.0, -388.1),
+    Vector3.new(691.3, 88.4, -393.9),
+    Vector3.new(685.4, 85.2, -398.4),
+    Vector3.new(690.5, 88.4, -390.2),
+    Vector3.new(686.9, 87.0, -387.3),
+    Vector3.new(682.4, 81.1, -383.9),
+    Vector3.new(679.4, 80.0, -376.7),
+    Vector3.new(673.8, 76.3, -369.4),
+    Vector3.new(674.1, 71.2, -362.5),
+    Vector3.new(674.5, 66.1, -355.8),
+    Vector3.new(675.2, 59.7, -345.1),
+    Vector3.new(676.0, 56.2, -332.7),
+    Vector3.new(677.5, 53.0, -319.7),
+    Vector3.new(683.5, 48.4, -311.1),
+    Vector3.new(690.0, 41.6, -305.4),
+    Vector3.new(697.3, 35.3, -298.9),
+    Vector3.new(707.8, 31.3, -295.7),
+    Vector3.new(716.8, 26.1, -291.9),
+    Vector3.new(723.6, 23.4, -283.7),
+    Vector3.new(729.0, 24.0, -273.6),
+    Vector3.new(729.9, 23.2, -261.2),
+    Vector3.new(728.9, 22.2, -249.4),
+    Vector3.new(729.5, 23.4, -239.4),
+    Vector3.new(725.2, 25.4, -229.5),
+    Vector3.new(719.3, 27.2, -219.9),
+    Vector3.new(714.5, 24.8, -210.8),
+    Vector3.new(706.4, 26.4, -201.7),
+    Vector3.new(697.9, 28.3, -194.4),
+    Vector3.new(690.1, 29.1, -186.8),
+    Vector3.new(682.8, 32.9, -180.4),
+    Vector3.new(672.6, 32.9, -179.8),
+    Vector3.new(662.9, 32.7, -184.2),
+    Vector3.new(668.6, 33.7, -192.4),
+    Vector3.new(659.7, 32.0, -186.9),
+    Vector3.new(668.0, 33.6, -192.0),
+    Vector3.new(659.4, 32.0, -186.6),
+    Vector3.new(668.9, 33.9, -192.4),
+    Vector3.new(658.9, 31.8, -186.3),
+    Vector3.new(668.0, 33.5, -191.8),
+    Vector3.new(658.2, 31.5, -185.8),
+    Vector3.new(653.5, 31.0, -182.8),
+    Vector3.new(643.8, 28.9, -177.4),
+    Vector3.new(632.2, 32.2, -180.1),
+    Vector3.new(626.3, 32.8, -184.2),
+    Vector3.new(614.2, 31.6, -189.1),
+    Vector3.new(600.8, 21.0, -194.5),
+    Vector3.new(594.3, 9.9, -197.1),
+    Vector3.new(583.7, -0.4, -201.4),
+    Vector3.new(574.1, -3.8, -205.2),
+    Vector3.new(564.9, -6.8, -208.9),
+    Vector3.new(555.4, -7.7, -212.7),
+    Vector3.new(544.1, -7.0, -217.3),
+    Vector3.new(533.2, -7.1, -221.7),
+    Vector3.new(523.0, -7.0, -225.8),
+    Vector3.new(511.0, -7.4, -230.6),
+    Vector3.new(495.1, -7.5, -238.9),
+    Vector3.new(481.5, -7.1, -246.8),
+    Vector3.new(469.3, -7.1, -254.1),
+    Vector3.new(455.8, -7.4, -262.0),
+    Vector3.new(443.5, -7.0, -269.2),
+    Vector3.new(431.6, -7.7, -276.2),
+    Vector3.new(420.7, -7.2, -282.7),
+    Vector3.new(408.1, -7.9, -290.1),
+    Vector3.new(397.1, -7.0, -296.5),
+    Vector3.new(387.1, -7.5, -302.5),
+    Vector3.new(375.0, -7.5, -309.6),
+    Vector3.new(364.1, -7.9, -316.0),
+    Vector3.new(353.5, -7.3, -322.3),
+    Vector3.new(343.2, -7.0, -328.3),
+    Vector3.new(333.7, -7.0, -333.9),
+    Vector3.new(323.5, -7.3, -339.9),
+    Vector3.new(312.7, -7.1, -346.3),
+    Vector3.new(301.8, -7.0, -352.7),
+    Vector3.new(291.0, -7.0, -359.1),
+    Vector3.new(280.7, -7.0, -365.1),
+    Vector3.new(270.5, -7.0, -371.1),
+    Vector3.new(260.2, -7.0, -377.2),
+    Vector3.new(251.1, -3.9, -382.6),
+    Vector3.new(241.3, -3.0, -388.4),
+    Vector3.new(230.7, -3.0, -394.6),
+    Vector3.new(221.8, -3.0, -399.8),
+    Vector3.new(211.6, -3.0, -405.9),
+    Vector3.new(202.3, -3.0, -411.3),
+    Vector3.new(192.6, -3.0, -417.0),
+    Vector3.new(180.4, -6.9, -426.1),
+    Vector3.new(169.6, -7.5, -435.2),
+    Vector3.new(157.8, -7.5, -438.3),
+    Vector3.new(144.4, -7.6, -441.9),
+    Vector3.new(130.8, -7.4, -445.5),
+    Vector3.new(118.1, -7.8, -448.9),
+    Vector3.new(106.9, -7.2, -451.9),
+    Vector3.new(95.0, -7.1, -455.0),
+    Vector3.new(83.3, -7.0, -458.1),
+    Vector3.new(70.8, -7.6, -461.4),
+    Vector3.new(58.6, -7.3, -464.7),
+    Vector3.new(46.1, -7.0, -468.0),
+    Vector3.new(34.5, -4.6, -471.1),
+    Vector3.new(22.6, -3.0, -474.3),
+    Vector3.new(12.1, -3.0, -477.1),
+    Vector3.new(-0.2, -3.0, -480.3),
+    Vector3.new(-10.9, -3.0, -483.2),
+    Vector3.new(-21.7, -3.0, -486.1),
+    Vector3.new(-33.7, -3.0, -489.3),
+    Vector3.new(-44.6, -3.0, -492.1),
+    Vector3.new(-58.7, -3.0, -496.5),
+    Vector3.new(-75.0, -1.1, -502.5),
+    Vector3.new(-82.1, 2.7, -505.0),
+    Vector3.new(-96.4, 5.0, -508.3),
+    Vector3.new(-104.5, 5.0, -512.1),
+    Vector3.new(-112.0, 5.0, -514.9),
+    Vector3.new(-124.6, 5.0, -519.1),
+    Vector3.new(-131.0, 5.0, -521.3),
+    Vector3.new(-137.1, 5.0, -528.1),
+    Vector3.new(-151.3, 5.0, -544.2),
+    Vector3.new(-160.1, 5.0, -554.3),
+    Vector3.new(-170.4, 5.0, -566.2),
+    Vector3.new(-179.4, 5.0, -576.5),
+    Vector3.new(-187.7, 5.0, -590.2),
+    Vector3.new(-192.6, 5.0, -609.1),
+    Vector3.new(-199.6, 5.5, -615.3),
+    Vector3.new(-202.7, 9.8, -617.4),
+    Vector3.new(-204.2, 14.9, -621.4),
+    Vector3.new(-205.8, 20.6, -625.8),
+    Vector3.new(-209.5, 21.5, -629.3),
+    Vector3.new(-215.9, 21.5, -626.0),
+    Vector3.new(-209.0, 21.5, -629.7),
+    Vector3.new(-216.3, 21.5, -625.8),
+    Vector3.new(-208.9, 21.5, -629.7),
+    Vector3.new(-216.3, 21.5, -625.7),
+    Vector3.new(-209.3, 21.5, -629.4),
+    Vector3.new(-216.8, 21.5, -625.4),
+    Vector3.new(-210.4, 21.5, -628.8),
+    Vector3.new(-208.3, 21.5, -630.9),
+    Vector3.new(-203.1, 5.6, -633.6),
+    Vector3.new(-202.1, -1.2, -638.3),
+    Vector3.new(-209.1, -3.0, -644.9),
+    Vector3.new(-218.7, -2.8, -644.4),
+    Vector3.new(-227.0, -2.3, -638.8),
+    Vector3.new(-237.8, -2.5, -631.6),
+    Vector3.new(-246.9, -2.7, -625.5),
+    Vector3.new(-256.6, -3.5, -619.0),
+    Vector3.new(-266.6, -4.7, -612.3),
+    Vector3.new(-276.4, -4.0, -605.8),
+    Vector3.new(-281.9, -3.2, -602.1),
+    Vector3.new(-295.5, -3.1, -602.3),
+    Vector3.new(-312.0, -3.0, -603.7),
+    Vector3.new(-327.1, -3.0, -603.9),
+    Vector3.new(-343.5, -3.0, -604.1),
+    Vector3.new(-354.8, -3.0, -603.4),
+    Vector3.new(-367.9, -3.1, -606.7),
+    Vector3.new(-374.5, -5.3, -613.3),
+    Vector3.new(-383.2, -8.5, -615.2),
+    Vector3.new(-387.8, -12.4, -612.3),
+    Vector3.new(-391.5, -20.5, -608.9),
+    Vector3.new(-398.5, -23.5, -602.5),
+    Vector3.new(-404.4, -26.8, -596.6),
+    Vector3.new(-406.9, -27.7, -585.3),
+    Vector3.new(-406.8, -28.0, -575.6),
+    Vector3.new(-407.2, -31.2, -569.1),
+    Vector3.new(-407.8, -35.4, -559.9),
+    Vector3.new(-408.1, -39.4, -554.5),
+    Vector3.new(-399.6, -40.1, -555.4),
+    Vector3.new(-394.1, -42.8, -556.5),
+    Vector3.new(-384.1, -43.5, -558.8),
+    Vector3.new(-377.3, -43.7, -554.7),
+    Vector3.new(-379.9, -43.3, -563.8),
+    Vector3.new(-377.5, -43.6, -555.4),
+    Vector3.new(-379.9, -43.2, -564.0),
+    Vector3.new(-377.6, -43.6, -555.9),
+    Vector3.new(-379.7, -43.3, -563.9),
+    Vector3.new(-377.2, -43.7, -554.8),
+    Vector3.new(-379.8, -43.2, -564.0),
+    Vector3.new(-369.3, -44.0, -561.8),
+    Vector3.new(-357.8, -46.8, -563.5),
+    Vector3.new(-348.4, -47.0, -565.6),
+    Vector3.new(-338.3, -47.2, -567.2),
+    Vector3.new(-325.9, -47.9, -569.2),
+    Vector3.new(-313.9, -50.1, -571.1),
+    Vector3.new(-305.5, -56.8, -572.4),
+    Vector3.new(-295.7, -56.5, -568.8),
+    Vector3.new(-287.8, -57.0, -563.9),
+    Vector3.new(-282.1, -56.7, -562.0),
+    Vector3.new(-271.2, -56.7, -558.0),
+    Vector3.new(-260.3, -55.8, -553.9),
+    Vector3.new(-248.7, -57.8, -549.7),
+    Vector3.new(-240.4, -59.3, -546.6),
+    Vector3.new(-234.5, -59.2, -544.9),
+    Vector3.new(-229.0, -59.2, -543.8),
+    Vector3.new(-219.8, -59.9, -541.4),
+    Vector3.new(-211.5, -60.0, -540.3),
+    Vector3.new(-204.5, -60.5, -540.9),
+    Vector3.new(-192.3, -63.0, -545.6),
+    Vector3.new(-184.1, -63.1, -551.3),
+    Vector3.new(-177.9, -63.5, -559.1),
+    Vector3.new(-173.2, -63.1, -563.7),
+    Vector3.new(-173.0, -63.9, -571.7),
+    Vector3.new(-172.7, -63.8, -582.5),
+    Vector3.new(-174.1, -64.0, -595.8),
+    Vector3.new(-180.8, -64.3, -604.2),
+    Vector3.new(-188.6, -63.1, -612.3),
+    Vector3.new(-198.0, -63.1, -620.5),
+    Vector3.new(-206.6, -61.2, -622.1),
+    Vector3.new(-212.0, -59.8, -631.7),
+    Vector3.new(-207.6, -61.7, -624.3),
+    Vector3.new(-210.3, -60.1, -630.5),
+    Vector3.new(-206.9, -61.7, -624.0),
+    Vector3.new(-209.8, -60.4, -629.8),
+    Vector3.new(-206.4, -61.5, -623.4),
+    Vector3.new(-208.7, -60.4, -629.1),
+    Vector3.new(-204.6, -61.3, -623.2),
+    Vector3.new(-208.6, -60.3, -629.8),
+    Vector3.new(-204.0, -61.3, -622.9),
+    Vector3.new(-195.5, -63.5, -621.1),
+    Vector3.new(-187.9, -63.5, -619.4),
+    Vector3.new(-179.0, -64.3, -606.0),
+    Vector3.new(-175.8, -63.6, -595.0),
+    Vector3.new(-174.4, -64.0, -580.4),
+    Vector3.new(-174.4, -63.4, -567.6),
+    Vector3.new(-174.5, -63.3, -556.7),
+    Vector3.new(-171.8, -64.3, -545.3),
+    Vector3.new(-167.8, -63.4, -536.2),
+    Vector3.new(-166.4, -63.4, -527.0),
+    Vector3.new(-167.4, -63.0, -515.6),
+    Vector3.new(-167.5, -63.1, -505.8),
+    Vector3.new(-169.0, -63.2, -496.8),
+    Vector3.new(-172.1, -64.8, -487.2),
+    Vector3.new(-176.0, -66.3, -480.1),
+    Vector3.new(-180.3, -66.5, -472.0),
+    Vector3.new(-185.1, -67.1, -463.9),
+    Vector3.new(-188.8, -67.3, -455.8),
+    Vector3.new(-190.6, -68.1, -447.1),
+    Vector3.new(-190.6, -67.1, -437.0),
+    Vector3.new(-191.0, -67.0, -426.3),
+    Vector3.new(-191.2, -67.0, -417.4),
+    Vector3.new(-193.4, -67.0, -408.2),
+    Vector3.new(-199.0, -67.6, -402.7),
+    Vector3.new(-201.1, -70.2, -392.8),
+    Vector3.new(-203.0, -71.3, -385.0),
+    Vector3.new(-205.7, -71.3, -378.4),
+    Vector3.new(-211.6, -72.0, -372.3),
+    Vector3.new(-218.9, -75.0, -365.0),
+    Vector3.new(-225.0, -75.2, -359.0),
+    Vector3.new(-232.3, -76.4, -351.7),
+    Vector3.new(-238.8, -79.0, -345.2),
+    Vector3.new(-245.9, -79.0, -338.2),
+    Vector3.new(-252.7, -79.0, -334.0),
+    Vector3.new(-263.7, -79.0, -341.0),
+    Vector3.new(-277.7, -79.0, -351.8),
+    Vector3.new(-292.0, -79.0, -363.0),
+    Vector3.new(-298.9, -79.0, -368.3),
+    Vector3.new(-308.2, -79.0, -372.8),
+    Vector3.new(-299.3, -79.0, -368.5),
+    Vector3.new(-308.2, -79.0, -372.7),
+    Vector3.new(-300.8, -79.0, -369.1),
+    Vector3.new(-307.5, -79.0, -372.3),
+    Vector3.new(-299.5, -79.0, -368.4),
+    Vector3.new(-308.3, -79.0, -372.6),
+    Vector3.new(-300.3, -79.0, -368.7),
+    Vector3.new(-308.6, -79.0, -372.7),
+    Vector3.new(-300.7, -79.0, -368.8),
+    Vector3.new(-308.0, -79.0, -372.3),
+    Vector3.new(-298.5, -79.0, -367.6),
+    Vector3.new(-308.7, -79.0, -372.5),
+    Vector3.new(-296.0, -79.0, -366.4),
+    Vector3.new(-283.6, -79.0, -357.8),
+    Vector3.new(-270.8, -79.0, -345.5),
+    Vector3.new(-260.0, -79.0, -336.4),
+    Vector3.new(-247.3, -78.9, -325.1),
+    Vector3.new(-235.0, -79.0, -314.1),
+    Vector3.new(-227.5, -79.3, -307.5),
+    Vector3.new(-229.7, -79.4, -294.3),
+    Vector3.new(-230.0, -79.8, -273.2),
+    Vector3.new(-230.3, -83.0, -257.4),
+    Vector3.new(-240.7, -83.0, -249.4),
+    Vector3.new(-239.9, -82.0, -244.1),
+    Vector3.new(-243.2, -83.0, -249.2),
+    Vector3.new(-240.7, -83.1, -245.3),
+    Vector3.new(-243.6, -83.1, -249.8),
+    Vector3.new(-240.2, -82.2, -244.6),
+    Vector3.new(-243.5, -83.0, -249.7),
+    Vector3.new(-240.1, -81.8, -244.5),
+    Vector3.new(-243.4, -83.0, -249.8),
+    Vector3.new(-240.5, -82.2, -245.3),
+    Vector3.new(-242.0, -83.0, -247.7),
+    Vector3.new(-241.2, -83.1, -246.4),
+    Vector3.new(-242.8, -83.1, -249.1),
+    Vector3.new(-240.7, -82.4, -245.8),
+    Vector3.new(-242.9, -83.0, -249.3),
+    Vector3.new(-239.9, -81.5, -244.6),
+    Vector3.new(-241.9, -83.0, -247.7),
+    Vector3.new(-240.0, -81.7, -244.6),
+    Vector3.new(-242.6, -83.0, -248.6),
+    Vector3.new(-233.9, -83.0, -252.1),
+    Vector3.new(-221.3, -83.2, -253.7),
+    Vector3.new(-209.3, -86.5, -254.5),
+    Vector3.new(-197.4, -87.4, -255.3),
+    Vector3.new(-183.4, -87.4, -257.5),
+    Vector3.new(-170.4, -87.4, -260.3),
+    Vector3.new(-154.3, -87.4, -263.9),
+    Vector3.new(-143.5, -87.4, -271.2),
+    Vector3.new(-130.1, -88.0, -282.2),
+    Vector3.new(-117.5, -91.4, -293.8),
+    Vector3.new(-116.0, -94.7, -307.1),
+    Vector3.new(-117.3, -99.2, -321.0),
+    Vector3.new(-118.3, -101.7, -333.7),
+    Vector3.new(-127.9, -103.0, -344.1),
+    Vector3.new(-143.6, -103.0, -350.3),
+    Vector3.new(-151.8, -103.0, -357.0),
+    Vector3.new(-154.8, -103.0, -370.2),
+    Vector3.new(-156.0, -103.0, -383.1),
+    Vector3.new(-154.6, -103.0, -395.9),
+    Vector3.new(-153.6, -103.0, -409.2),
+    Vector3.new(-151.2, -103.0, -428.6),
+    Vector3.new(-150.3, -103.0, -445.4),
+    Vector3.new(-151.4, -103.0, -463.2),
+    Vector3.new(-151.5, -103.0, -480.8),
+    Vector3.new(-157.5, -103.0, -497.3),
+    Vector3.new(-165.3, -103.0, -502.7),
+    Vector3.new(-175.7, -103.7, -505.3),
+    Vector3.new(-184.2, -103.0, -505.6),
+    Vector3.new(-190.0, -103.6, -502.4),
+    Vector3.new(-193.2, -103.2, -495.3),
+    Vector3.new(-192.8, -103.0, -488.0),
+    Vector3.new(-191.5, -103.1, -478.6),
+    Vector3.new(-190.1, -103.6, -468.8),
+    Vector3.new(-188.8, -104.2, -459.9),
+    Vector3.new(-192.2, -103.9, -456.5),
+    Vector3.new(-186.0, -102.8, -455.9),
+    Vector3.new(-193.1, -103.5, -456.5),
+    Vector3.new(-185.9, -103.1, -455.9),
+    Vector3.new(-193.0, -103.6, -456.6),
+    Vector3.new(-185.9, -103.1, -456.0),
+    Vector3.new(-192.5, -103.6, -456.6),
+    Vector3.new(-186.1, -102.9, -456.2),
+    Vector3.new(-191.7, -103.8, -456.7),
+    Vector3.new(-186.6, -103.2, -456.4),
+    Vector3.new(-191.6, -103.8, -456.8),
+    Vector3.new(-185.7, -103.0, -456.3),
+    Vector3.new(-188.9, -104.1, -461.9),
+    Vector3.new(-190.8, -103.5, -472.8),
+    Vector3.new(-192.7, -103.0, -484.0),
+    Vector3.new(-193.2, -103.3, -495.6),
+    Vector3.new(-189.8, -103.3, -504.7),
+    Vector3.new(-184.0, -103.0, -506.2),
+    Vector3.new(-175.3, -103.0, -504.2),
+    Vector3.new(-168.4, -103.0, -503.0),
+    Vector3.new(-158.0, -103.0, -497.6),
+    Vector3.new(-145.5, -103.0, -492.2),
+    Vector3.new(-133.4, -103.0, -488.0),
+    Vector3.new(-121.4, -103.0, -483.8),
+    Vector3.new(-109.1, -103.0, -481.1),
+    Vector3.new(-96.1, -103.0, -476.6),
+    Vector3.new(-82.6, -103.0, -471.9),
+    Vector3.new(-70.6, -103.0, -466.3),
+    Vector3.new(-58.7, -103.0, -462.1),
+    Vector3.new(-47.2, -103.0, -457.1),
+    Vector3.new(-37.2, -103.0, -452.1),
+    Vector3.new(-26.5, -103.0, -446.8),
+    Vector3.new(-16.1, -103.0, -441.5),
+    Vector3.new(-6.8, -103.0, -435.1),
+    Vector3.new(1.8, -103.0, -428.6),
+    Vector3.new(10.1, -103.0, -419.5),
+    Vector3.new(15.2, -100.6, -409.5),
+    Vector3.new(19.1, -99.0, -397.7),
+    Vector3.new(22.9, -99.0, -385.3),
+    Vector3.new(20.4, -99.0, -381.4),
+    Vector3.new(25.6, -99.0, -372.5),
+    Vector3.new(20.9, -99.0, -381.3),
+    Vector3.new(24.7, -99.0, -372.1),
+    Vector3.new(20.9, -99.0, -379.8),
+    Vector3.new(24.8, -99.0, -373.2),
+    Vector3.new(20.5, -99.0, -380.8),
+    Vector3.new(23.6, -99.0, -374.3),
+    Vector3.new(20.2, -99.0, -381.2),
+    Vector3.new(24.1, -99.0, -373.0),
+    Vector3.new(20.6, -99.0, -380.3),
+    Vector3.new(27.5, -99.0, -373.7),
+    Vector3.new(34.2, -99.2, -372.4),
+    Vector3.new(40.6, -99.0, -366.2),
+    Vector3.new(33.1, -99.1, -373.3),
+    Vector3.new(39.4, -99.0, -367.3),
+    Vector3.new(34.2, -99.2, -372.2),
+    Vector3.new(39.1, -99.0, -367.4),
+    Vector3.new(32.9, -99.1, -373.3),
+    Vector3.new(39.8, -99.0, -366.7),
+    Vector3.new(32.1, -99.1, -374.0),
+    Vector3.new(40.9, -99.0, -365.6),
+    Vector3.new(49.7, -99.3, -357.2),
+    Vector3.new(56.4, -98.9, -361.9),
+    Vector3.new(50.9, -99.4, -356.2),
+    Vector3.new(57.0, -98.9, -362.6),
+    Vector3.new(51.4, -99.2, -356.8),
+    Vector3.new(55.6, -99.0, -361.2),
+    Vector3.new(50.7, -99.3, -356.1),
+    Vector3.new(56.5, -98.9, -362.3),
+    Vector3.new(51.4, -98.9, -357.0),
+    Vector3.new(50.6, -99.0, -365.0),
+    Vector3.new(46.9, -99.0, -365.3),
+    Vector3.new(36.2, -99.1, -369.2),
+    Vector3.new(28.6, -99.6, -379.2),
+    Vector3.new(21.1, -99.0, -387.0),
+    Vector3.new(19.6, -99.0, -399.9),
+    Vector3.new(16.3, -100.0, -408.4),
+    Vector3.new(12.5, -102.8, -415.9),
+    Vector3.new(2.9, -103.0, -416.7),
+    Vector3.new(-5.3, -103.0, -412.9),
+    Vector3.new(-18.4, -103.0, -406.9),
+    Vector3.new(-37.6, -103.0, -397.8),
+    Vector3.new(-42.9, -103.0, -395.6),
+    Vector3.new(-43.2, -99.4, -390.0),
+    Vector3.new(-43.4, -94.7, -386.6),
+    Vector3.new(-45.3, -92.2, -384.5),
+    Vector3.new(-46.1, -90.4, -381.5),
+    Vector3.new(-46.3, -90.5, -376.7),
+    Vector3.new(-42.3, -90.5, -372.3),
+    Vector3.new(-38.3, -90.9, -368.1),
+    Vector3.new(-28.1, -91.2, -366.6),
+    Vector3.new(-17.0, -91.8, -366.2),
+    Vector3.new(-10.0, -91.0, -367.8),
+    Vector3.new(-5.6, -87.8, -367.4),
+    Vector3.new(-1.0, -83.8, -369.0),
+    Vector3.new(-9.3, -81.1, -376.3),
+    Vector3.new(-18.9, -81.2, -379.4),
+    Vector3.new(-30.0, -78.8, -384.2),
+    Vector3.new(-33.8, -75.7, -389.5),
+    Vector3.new(-36.9, -72.9, -399.0),
+    Vector3.new(-31.2, -73.0, -413.0),
+    Vector3.new(-26.8, -73.1, -421.4),
+    Vector3.new(-24.2, -73.2, -434.6),
+    Vector3.new(-26.2, -73.1, -421.7),
+    Vector3.new(-24.5, -73.2, -433.8),
+    Vector3.new(-26.3, -73.1, -421.8),
+    Vector3.new(-24.6, -73.2, -433.4),
+    Vector3.new(-26.2, -73.1, -423.1),
+    Vector3.new(-24.6, -73.2, -434.1),
+    Vector3.new(-26.2, -73.1, -423.2),
+    Vector3.new(-24.6, -73.2, -434.1),
+    Vector3.new(-26.9, -72.9, -419.1),
+    Vector3.new(-33.8, -72.9, -411.3),
+    Vector3.new(-32.5, -73.1, -397.8),
+    Vector3.new(-32.5, -76.3, -386.6),
+    Vector3.new(-27.2, -79.9, -382.4),
+    Vector3.new(-16.8, -81.4, -379.2),
+    Vector3.new(-6.3, -81.9, -374.3),
+    Vector3.new(0.6, -83.6, -367.8),
+    Vector3.new(10.5, -85.3, -357.5),
+    Vector3.new(17.9, -85.5, -347.5),
+    Vector3.new(16.5, -88.1, -339.2),
+    Vector3.new(11.1, -91.2, -329.0),
+    Vector3.new(7.0, -91.9, -317.7),
+    Vector3.new(3.0, -94.0, -306.2),
+    Vector3.new(0.8, -94.0, -294.9),
+    Vector3.new(-1.6, -92.6, -282.5),
+    Vector3.new(-7.6, -91.2, -270.2),
+    Vector3.new(-9.8, -86.0, -264.3),
+    Vector3.new(-6.7, -84.8, -256.3),
+    Vector3.new(-8.5, -85.0, -246.9),
+    Vector3.new(-15.1, -86.5, -237.8),
+    Vector3.new(-20.5, -87.0, -234.2),
+    Vector3.new(-27.7, -87.0, -239.1),
+    Vector3.new(-40.2, -86.3, -240.7),
+    Vector3.new(-46.5, -87.7, -236.9),
+    Vector3.new(-47.6, -84.5, -228.9),
+    Vector3.new(-48.1, -85.1, -218.4),
+    Vector3.new(-41.5, -83.3, -209.4),
+    Vector3.new(-34.6, -83.0, -203.5),
+    Vector3.new(-26.3, -83.2, -195.0),
+    Vector3.new(-21.8, -83.1, -188.0),
+    Vector3.new(-16.0, -83.7, -178.5),
+    Vector3.new(-11.2, -83.3, -169.8),
+    Vector3.new(-6.1, -83.4, -160.4),
+    Vector3.new(-0.6, -83.2, -150.2),
+    Vector3.new(1.8, -83.0, -140.4),
+    Vector3.new(0.9, -83.0, -131.0),
+    Vector3.new(-0.4, -83.0, -121.3),
+    Vector3.new(0.1, -83.0, -112.0),
+    Vector3.new(1.1, -83.0, -101.7),
+    Vector3.new(1.4, -83.0, -92.7),
+    Vector3.new(-1.6, -83.0, -77.7),
+    Vector3.new(0.5, -83.0, -88.3),
+    Vector3.new(-1.5, -83.0, -78.4),
+    Vector3.new(0.4, -83.0, -88.1),
+    Vector3.new(-1.9, -83.0, -77.3),
+    Vector3.new(0.4, -83.0, -88.6),
+    Vector3.new(-1.5, -83.0, -77.0),
+    Vector3.new(1.5, -82.1, -71.0),
+    Vector3.new(3.8, -79.3, -62.6),
+    Vector3.new(18.4, -75.0, -44.2),
+    Vector3.new(24.8, -75.0, -35.4),
+    Vector3.new(31.2, -75.0, -26.7),
+    Vector3.new(38.3, -75.0, -17.1),
+    Vector3.new(46.7, -75.0, -11.1),
+    Vector3.new(55.7, -75.0, -7.9),
+    Vector3.new(65.5, -75.0, -4.3),
+    Vector3.new(75.1, -75.0, -0.8),
+    Vector3.new(83.9, -75.0, 3.0),
+    Vector3.new(93.1, -75.0, 6.7),
+    Vector3.new(101.4, -75.0, 10.1),
+    Vector3.new(111.1, -75.0, 14.4),
+    Vector3.new(120.8, -75.0, 17.6),
+    Vector3.new(128.4, -75.0, 20.7),
+    Vector3.new(140.8, -75.0, 27.0),
+    Vector3.new(151.8, -75.0, 27.6),
+    Vector3.new(142.0, -75.0, 27.0),
+    Vector3.new(151.4, -75.0, 27.5),
+    Vector3.new(141.5, -75.0, 27.0),
+    Vector3.new(151.9, -75.0, 27.5),
+    Vector3.new(141.4, -75.0, 26.9),
+    Vector3.new(152.3, -75.0, 27.4),
+    Vector3.new(142.3, -75.0, 26.9),
+    Vector3.new(152.2, -75.0, 27.4),
+    Vector3.new(136.1, -75.0, 26.6),
+    Vector3.new(117.4, -75.0, 20.7),
+    Vector3.new(106.4, -75.0, 16.9),
+    Vector3.new(95.9, -75.0, 11.8),
+    Vector3.new(86.6, -75.0, 6.9),
+    Vector3.new(75.3, -75.0, 2.9),
+    Vector3.new(61.1, -75.0, -3.1),
+    Vector3.new(49.5, -75.0, -9.3),
+    Vector3.new(40.0, -75.0, -14.6),
+    Vector3.new(31.6, -75.0, -21.3),
+    Vector3.new(26.9, -75.0, -31.0),
+    Vector3.new(14.4, -75.0, -35.4),
+    Vector3.new(3.9, -75.0, -34.8),
+    Vector3.new(-6.1, -75.0, -35.3),
+    Vector3.new(-14.1, -75.3, -34.8),
+    Vector3.new(-21.2, -75.9, -37.3),
+    Vector3.new(-25.8, -75.5, -44.3),
+    Vector3.new(-30.1, -75.0, -52.8),
+    Vector3.new(-35.2, -75.0, -60.4),
+    Vector3.new(-42.9, -75.0, -65.5),
+    Vector3.new(-49.5, -75.0, -71.8),
+    Vector3.new(-58.3, -75.8, -74.9),
+    Vector3.new(-62.0, -79.0, -73.4),
+    Vector3.new(-64.2, -83.0, -67.3),
+    Vector3.new(-68.6, -87.7, -60.6),
+    Vector3.new(-68.6, -90.0, -55.5),
+    Vector3.new(-59.7, -91.2, -51.1),
+    Vector3.new(-52.3, -91.5, -45.5),
+    Vector3.new(-41.2, -91.2, -38.2),
+    Vector3.new(-33.5, -91.2, -33.0),
+    Vector3.new(-28.5, -91.2, -23.0),
+    Vector3.new(-20.2, -91.1, -9.7),
+    Vector3.new(-15.8, -91.2, -10.5),
+    Vector3.new(-23.9, -91.5, -8.3),
+    Vector3.new(-15.8, -91.2, -10.9),
+    Vector3.new(-24.6, -91.7, -8.8),
+    Vector3.new(-16.1, -91.2, -11.8),
+    Vector3.new(-24.3, -91.7, -9.6),
+    Vector3.new(-16.6, -91.2, -12.2),
+    Vector3.new(-24.7, -91.6, -10.0),
+    Vector3.new(-25.1, -91.2, -22.3),
+    Vector3.new(-29.2, -91.2, -27.0),
+    Vector3.new(-37.1, -91.2, -34.9),
+    Vector3.new(-47.5, -91.2, -42.5),
+    Vector3.new(-58.0, -91.3, -48.5),
+    Vector3.new(-66.6, -90.9, -52.3),
+    Vector3.new(-76.5, -90.7, -50.9),
+    Vector3.new(-85.4, -95.3, -49.5),
+    Vector3.new(-99.3, -95.1, -48.8),
+    Vector3.new(-110.8, -95.6, -51.8),
+    Vector3.new(-125.0, -95.1, -57.7),
+    Vector3.new(-134.5, -95.3, -62.6),
+    Vector3.new(-144.3, -95.1, -69.4),
+    Vector3.new(-154.8, -95.3, -77.8),
+    Vector3.new(-163.3, -95.3, -84.6),
+    Vector3.new(-175.1, -95.2, -94.1),
+    Vector3.new(-184.4, -95.2, -101.5),
+    Vector3.new(-184.9, -95.3, -101.9),
+    Vector3.new(-199.2, -95.3, -113.4),
+    Vector3.new(-208.9, -95.2, -121.2),
+    Vector3.new(-218.1, -95.4, -127.8),
+    Vector3.new(-228.3, -95.2, -126.7),
+    Vector3.new(-241.4, -95.8, -116.9),
+    Vector3.new(-251.4, -95.3, -105.3),
+    Vector3.new(-260.9, -99.6, -94.4),
+    Vector3.new(-269.3, -99.6, -84.6),
+    Vector3.new(-277.8, -99.3, -74.7),
+    Vector3.new(-296.8, -97.0, -62.8),
+    Vector3.new(-296.0, -97.6, -63.2),
+    Vector3.new(-303.0, -95.1, -59.8),
+    Vector3.new(-317.4, -95.0, -56.2),
+    Vector3.new(-328.1, -91.7, -54.5),
+    Vector3.new(-338.3, -91.0, -51.2),
+    Vector3.new(-343.3, -91.0, -43.2),
+    Vector3.new(-338.8, -91.0, -50.5),
+    Vector3.new(-343.9, -91.0, -42.1),
+    Vector3.new(-339.3, -91.0, -49.8),
+    Vector3.new(-344.0, -91.0, -42.2),
+    Vector3.new(-339.5, -91.0, -49.6),
+    Vector3.new(-343.6, -91.0, -43.0),
+    Vector3.new(-339.8, -91.0, -49.1),
+    Vector3.new(-344.1, -91.0, -42.1),
+    Vector3.new(-339.5, -91.0, -49.7),
+    Vector3.new(-344.5, -91.0, -41.6),
+    Vector3.new(-339.9, -91.0, -49.1),
+    Vector3.new(-335.3, -91.0, -60.2),
+    Vector3.new(-330.5, -91.0, -72.5),
+    Vector3.new(-327.3, -90.1, -85.3),
+    Vector3.new(-324.3, -86.9, -99.0),
+    Vector3.new(-319.7, -85.4, -109.0),
+    Vector3.new(-313.0, -81.6, -111.3),
+    Vector3.new(-309.5, -79.2, -107.0),
+    Vector3.new(-305.6, -76.6, -99.9),
+    Vector3.new(-297.1, -75.3, -97.1),
+    Vector3.new(-290.0, -72.7, -95.0),
+    Vector3.new(-280.9, -70.7, -92.4),
+    Vector3.new(-272.7, -69.8, -86.2),
+    Vector3.new(-264.3, -71.4, -82.7),
+    Vector3.new(-254.6, -71.1, -78.1),
+    Vector3.new(-244.5, -71.7, -75.2),
+    Vector3.new(-235.7, -71.7, -75.1),
+    Vector3.new(-239.3, -71.7, -80.4),
+    Vector3.new(-240.7, -71.7, -75.0),
+    Vector3.new(-234.8, -71.7, -75.8),
+    Vector3.new(-238.9, -71.7, -81.3),
+    Vector3.new(-244.2, -71.7, -75.9),
+    Vector3.new(-236.6, -71.7, -74.1),
+    Vector3.new(-238.2, -71.7, -80.8),
+    Vector3.new(-242.7, -71.7, -75.3),
+    Vector3.new(-235.9, -71.7, -73.8),
+    Vector3.new(-239.5, -71.7, -80.0),
+    Vector3.new(-240.7, -71.7, -74.3),
+    Vector3.new(-235.4, -71.7, -76.6),
+    Vector3.new(-239.4, -71.7, -80.2),
+    Vector3.new(-251.4, -71.4, -80.5),
+    Vector3.new(-261.9, -71.3, -82.4),
+    Vector3.new(-269.6, -70.1, -84.8),
+    Vector3.new(-279.7, -70.1, -90.0),
+    Vector3.new(-286.3, -71.4, -93.4),
+    Vector3.new(-293.0, -73.9, -96.3),
+    Vector3.new(-300.1, -75.3, -99.8),
+    Vector3.new(-307.6, -77.5, -105.0),
+    Vector3.new(-310.7, -79.4, -107.5),
+    Vector3.new(-316.5, -83.1, -107.9),
+    Vector3.new(-321.2, -86.0, -102.7),
+    Vector3.new(-325.2, -86.1, -100.0),
+    Vector3.new(-326.2, -88.1, -92.4),
+    Vector3.new(-327.8, -90.8, -82.8),
+    Vector3.new(-329.8, -91.0, -76.0),
+    Vector3.new(-332.0, -91.0, -66.1),
+    Vector3.new(-334.5, -91.0, -55.2),
+    Vector3.new(-341.4, -91.0, -48.0),
+    Vector3.new(-342.5, -91.0, -40.3),
+    Vector3.new(-342.4, -91.0, -32.5),
+    Vector3.new(-342.3, -91.0, -24.1),
+    Vector3.new(-343.2, -91.0, -16.2),
+    Vector3.new(-344.2, -90.3, -8.3),
+    Vector3.new(-347.9, -89.2, -2.0),
+    Vector3.new(-351.9, -88.6, -1.1),
+    Vector3.new(-361.4, -90.1, -0.0),
+    Vector3.new(-371.8, -88.7, 1.1),
+    Vector3.new(-381.0, -87.0, 1.3),
+    Vector3.new(-393.6, -87.0, 1.7),
+    Vector3.new(-401.6, -87.0, 1.5),
+    Vector3.new(-406.7, -87.2, 2.0),
+    Vector3.new(-408.2, -87.7, 3.4),
+    Vector3.new(-418.4, -87.0, 2.8),
+    Vector3.new(-427.5, -85.4, 1.5),
+    Vector3.new(-436.9, -83.0, -0.7),
+    Vector3.new(-446.9, -83.0, -6.1),
+    Vector3.new(-453.6, -83.0, -13.6),
+    Vector3.new(-460.1, -83.6, -19.4),
+    Vector3.new(-465.3, -83.8, -25.2),
+    Vector3.new(-471.9, -83.5, -27.7),
+    Vector3.new(-481.5, -84.0, -27.1),
+    Vector3.new(-487.8, -84.5, -25.2),
+    Vector3.new(-492.8, -84.1, -20.4),
+    Vector3.new(-493.7, -83.3, -15.1),
+    Vector3.new(-501.2, -83.3, -6.4),
+    Vector3.new(-507.3, -83.0, -1.5),
+    Vector3.new(-514.4, -83.0, 2.4),
+    Vector3.new(-522.9, -83.0, 4.1),
+    Vector3.new(-531.7, -82.7, 3.6),
+    Vector3.new(-537.2, -80.3, 2.8),
+    Vector3.new(-544.4, -79.4, 3.4),
+    Vector3.new(-551.0, -79.1, 6.2),
+    Vector3.new(-558.9, -79.2, 8.6),
+    Vector3.new(-566.5, -78.9, 12.7),
+    Vector3.new(-572.6, -76.8, 15.7),
+    Vector3.new(-580.2, -75.9, 19.9),
+    Vector3.new(-588.3, -75.3, 23.1),
+    Vector3.new(-594.6, -73.2, 28.2),
+    Vector3.new(-599.6, -73.8, 32.8),
+    Vector3.new(-606.7, -73.4, 36.1),
+    Vector3.new(-613.8, -72.8, 37.8),
+    Vector3.new(-619.5, -72.6, 40.4),
+    Vector3.new(-625.0, -73.0, 44.1),
+    Vector3.new(-630.9, -72.6, 48.8),
+    Vector3.new(-633.4, -72.1, 51.8),
+    Vector3.new(-636.7, -71.6, 55.6),
+    Vector3.new(-635.2, -71.3, 62.0),
+    Vector3.new(-634.5, -71.1, 72.1),
+    Vector3.new(-633.9, -70.8, 79.8),
+    Vector3.new(-634.3, -69.4, 87.7),
+    Vector3.new(-634.1, -68.3, 94.1),
+    Vector3.new(-633.6, -67.8, 101.4),
+    Vector3.new(-635.0, -68.3, 108.2),
+    Vector3.new(-635.7, -68.8, 114.2),
+    Vector3.new(-639.2, -68.7, 120.5),
+    Vector3.new(-642.3, -68.7, 126.8),
+    Vector3.new(-644.6, -69.2, 134.5),
+    Vector3.new(-645.0, -68.0, 142.1),
+    Vector3.new(-645.5, -67.5, 150.1),
+    Vector3.new(-646.3, -65.7, 155.5),
+    Vector3.new(-647.1, -63.8, 163.5),
+    Vector3.new(-647.9, -63.0, 172.0),
+    Vector3.new(-647.5, -63.0, 177.3),
+    Vector3.new(-648.0, -63.1, 184.4),
+    Vector3.new(-649.3, -63.2, 188.9),
+    Vector3.new(-649.2, -63.2, 199.0),
+    Vector3.new(-652.2, -64.4, 204.4),
+    Vector3.new(-656.3, -66.7, 208.3),
+    Vector3.new(-661.1, -70.8, 211.4),
+    Vector3.new(-667.3, -71.6, 213.4),
+    Vector3.new(-672.8, -72.5, 215.7),
+    Vector3.new(-680.6, -71.9, 218.9),
+    Vector3.new(-686.7, -71.1, 218.7),
+    Vector3.new(-693.0, -70.9, 216.1),
+    Vector3.new(-700.5, -68.6, 213.0),
+    Vector3.new(-706.5, -67.9, 210.5),
+    Vector3.new(-716.2, -68.2, 208.1),
+    Vector3.new(-723.3, -67.3, 211.0),
+    Vector3.new(-715.5, -68.2, 207.8),
+    Vector3.new(-723.9, -67.2, 211.3),
+    Vector3.new(-714.9, -68.2, 207.6),
+    Vector3.new(-723.6, -67.2, 211.3),
+    Vector3.new(-714.8, -68.2, 207.7),
+    Vector3.new(-724.3, -67.1, 211.6),
+    Vector3.new(-714.9, -68.2, 207.7),
+    Vector3.new(-723.8, -67.1, 211.5),
+    Vector3.new(-715.6, -68.2, 208.1),
+    Vector3.new(-726.3, -67.0, 212.7),
+    Vector3.new(-729.2, -65.6, 219.6),
+    Vector3.new(-733.4, -63.1, 226.8),
+    Vector3.new(-739.8, -62.7, 231.0),
+    Vector3.new(-742.7, -59.4, 238.2),
+    Vector3.new(-745.1, -56.5, 243.9),
+    Vector3.new(-748.3, -53.5, 251.6),
+    Vector3.new(-750.9, -51.5, 257.9),
+    Vector3.new(-753.7, -50.1, 264.5),
+    Vector3.new(-756.3, -47.5, 270.7),
+    Vector3.new(-758.9, -45.7, 277.0),
+    Vector3.new(-753.5, -43.5, 280.6),
+    Vector3.new(-746.6, -43.0, 283.5),
+    Vector3.new(-738.9, -39.6, 284.7),
+    Vector3.new(-732.5, -39.2, 280.9),
+    Vector3.new(-725.9, -38.8, 277.0),
+    Vector3.new(-718.9, -35.9, 272.8),
+    Vector3.new(-712.6, -34.3, 269.1),
+    Vector3.new(-705.8, -31.2, 265.1),
+    Vector3.new(-697.2, -31.3, 260.0),
+    Vector3.new(-690.8, -28.9, 258.6),
+    Vector3.new(-685.7, -25.3, 255.6),
+    Vector3.new(-679.2, -21.9, 251.7),
+    Vector3.new(-673.2, -18.2, 248.2),
+    Vector3.new(-668.5, -16.0, 243.2),
+    Vector3.new(-663.6, -13.0, 238.2),
+    Vector3.new(-658.6, -8.9, 235.3),
+    Vector3.new(-652.9, -4.9, 231.9),
+    Vector3.new(-647.3, -3.0, 228.6),
+    Vector3.new(-636.9, -3.0, 222.4),
+    Vector3.new(-629.8, -3.0, 218.2),
+    Vector3.new(-622.9, -3.0, 214.1),
+    Vector3.new(-616.0, -3.0, 210.0),
+    Vector3.new(-609.3, -3.0, 206.0),
+    Vector3.new(-602.6, -3.0, 202.0),
+    Vector3.new(-597.5, -3.0, 199.0),
+    Vector3.new(-591.2, -3.0, 195.3),
+    Vector3.new(-569.4, -3.0, 181.0),
+    Vector3.new(-560.3, -3.0, 175.1),
+    Vector3.new(-552.5, -3.0, 170.1),
+    Vector3.new(-543.5, -3.0, 164.3),
+    Vector3.new(-535.5, -3.0, 159.2),
+    Vector3.new(-527.8, -3.0, 154.2),
+    Vector3.new(-519.1, -2.3, 148.7),
+    Vector3.new(-512.2, -2.4, 144.2),
+    Vector3.new(-504.6, -3.0, 139.3),
+    Vector3.new(-497.0, -3.1, 134.4),
+    Vector3.new(-489.1, -3.0, 129.3),
+    Vector3.new(-476.3, -3.0, 121.1),
+    Vector3.new(-468.5, -4.3, 116.0),
+    Vector3.new(-461.0, -7.0, 111.2),
+    Vector3.new(-453.6, -7.0, 106.5),
+    Vector3.new(-446.4, -7.0, 101.9),
+    Vector3.new(-437.9, -7.0, 96.4),
+    Vector3.new(-430.1, -7.0, 91.3),
+    Vector3.new(-422.2, -7.0, 86.3),
+    Vector3.new(-413.8, -7.0, 80.9),
+    Vector3.new(-405.3, -3.9, 75.4),
+    Vector3.new(-398.2, -3.0, 70.8),
+    Vector3.new(-389.9, -3.0, 65.5),
+    Vector3.new(-382.5, -3.0, 60.7),
+    Vector3.new(-375.5, -3.0, 56.2),
+    Vector3.new(-361.5, -3.0, 48.1),
+    Vector3.new(-350.5, -3.0, 42.1),
+    Vector3.new(-341.0, -3.2, 36.9),
+    Vector3.new(-328.9, -7.0, 30.3),
+    Vector3.new(-319.6, -7.4, 25.2),
+    Vector3.new(-309.4, -7.5, 19.6),
+    Vector3.new(-299.8, -7.4, 14.4),
+    Vector3.new(-290.7, -7.1, 9.5),
+    Vector3.new(-283.0, -7.0, 5.2),
+    Vector3.new(-273.5, -7.0, 0.1),
+    Vector3.new(-265.1, -7.0, -4.5),
+    Vector3.new(-256.1, -7.0, -9.4),
+    Vector3.new(-247.3, -7.0, -14.2),
+    Vector3.new(-240.5, -3.2, -20.2),
+    Vector3.new(-235.6, -3.0, -28.9),
+    Vector3.new(-227.0, -3.0, -37.2),
+    Vector3.new(-220.6, -4.0, -47.4),
+    Vector3.new(-212.9, -4.3, -57.4),
+    Vector3.new(-210.6, -4.2, -72.2),
+    Vector3.new(-212.9, -4.2, -85.5),
+    Vector3.new(-214.6, -4.2, -95.0),
+    Vector3.new(-209.8, -6.1, -103.7),
+    Vector3.new(-204.1, -4.2, -111.9),
+    Vector3.new(-194.0, -4.2, -115.0),
+    Vector3.new(-182.6, -4.3, -119.5),
+    Vector3.new(-172.5, -4.8, -121.2),
+    Vector3.new(-165.1, -8.6, -124.6),
+    Vector3.new(-163.1, -11.1, -124.2),
+    Vector3.new(-157.9, -18.6, -121.8),
+    Vector3.new(-154.7, -26.7, -121.2),
+    Vector3.new(-149.5, -33.9, -119.1)
+
+
+    local oldFolder = workspace:FindFirstChild("RedSticks")
+    if oldFolder then oldFolder:Destroy() end
+
+    local folder = Instance.new("Folder")
+    folder.Name = "RedSticks"
+    folder.Parent = workspace
+    for i, group in ipairs(groups) do
+        if #group >= 2 then
+            CreateWideStick(group, folder, "SigmoPart_" .. i)
+        end
+    end
+
+    local success, raw = pcall(function() return readfile("TweensCFG1.json") end)
+    if not success then
+        _G.walkPts = _G.walkPts or {}
+        return
+    end
+
+    local ok, data = pcall(function() return httpservice:JSONDecode(raw) end)
+    if not ok or not data or not data.position then
+        _G.walkPts = _G.walkPts or {}
+        return
+    end
+
+    local out = {}
+    local folder2 = Instance.new("Folder", workspace)
+    folder2.Name = "WalkerSpheres"
+    for i, p in ipairs(data.position) do
+        local vec = Vector3.new(p.X, p.Y, p.Z)
+        out[#out + 1] = vec
+        local part = Instance.new("Part", folder2)
+        part.Shape = Enum.PartType.Ball
+        part.Anchored = true
+        part.CanCollide = false
+        part.Size = Vector3.new(1.5, 1.5, 1.5)
+        part.Position = vec
+        part.Color = Color3.new(1, 0, 0)
+        part.Transparency = 0.25
+        part.Name = "WalkerDot_" .. i
+    end
+    _G.walkPts = out
+end
+
+local function StartWalkingLoop()
+    local lp = game:GetService("Players").LocalPlayer
+    local humRef = (lp.Character or lp.CharacterAdded:Wait()):WaitForChild("Humanoid")
+    humRef.WalkSpeed = 16
+    task.spawn(function()
+        while true do
+            for _, pos in ipairs(_G.walkPts or {}) do
+                humRef:MoveTo(pos)
+                humRef.MoveToFinished:Wait()
+            end
+            task.wait(0.5)
+        end
+    end)
+end
+
+if not Tabs then
+    if Window then
+        Tabs = {
+            Main = Window:AddTab({ Title = "Main", Icon = "menu" }),
+            Combat = Window:AddTab({ Title = "Combat", Icon = "axe" }),
+            Map = Window:AddTab({ Title = "Map", Icon = "trees" }),
+            Pickup = Window:AddTab({ Title = "Pickup", Icon = "backpack" }),
+            Farming = Window:AddTab({ Title = "Farming", Icon = "sprout" }),
+            FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" }),
+            Extra = Window:AddTab({ Title = "Extra", Icon = "plus" }),
+            Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+        }
+    else
+        Tabs = {}
+    end
+end
+
+if not Tabs.FarmGold and Window then
+    Tabs.FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" })
+end
+
+Tabs.FarmGold:CreateButton({
+    Title = "Delete Old Boards",
+    Callback = function()
+        ClearOldBoardsAndHelpers()
+    end
+})
+
+Tabs.FarmGold:CreateButton({
+    Title = "Load Tween Config (TweensCFG1.json)",
+    Callback = function()
+        pcall(LoadTweensConfig_CreateVisuals)
+    end
+})
+
+Tabs.FarmGold:CreateButton({
+    Title = "Start Walking (use after Load Config)",
+    Callback = function()
+        pcall(StartWalkingLoop)
+    end
+})
+
+if Tabs.Farming then
+    local autofarmgoldtoggle = Tabs.Farming:CreateToggle("autofarmgoldtoggle", {
+        Title = "Auto Farm Gold",
+        Default = false
+    })
+    local autofarmgoldrange = Tabs.Farming:CreateSlider("autofarmgoldrange", { Title = "Range", Min = 5, Max = 200, Rounding = 1, Default = 30 })
+    local autofarmgoldcooldown = Tabs.Farming:CreateSlider("autofarmgoldcooldown", { Title = "Swing Delay (s)", Min = 0.01, Max = 1.5, Rounding = 2, Default = 0.12 })
+
+    local function swingtool_local(eids)
+        if packets and packets.SwingTool and packets.SwingTool.send then
+            packets.SwingTool.send(eids)
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            if not autofarmgoldtoggle.Value then
+                task.wait(0.2)
+            else
+                local range = tonumber(autofarmgoldrange.Value) or 30
+                local cooldown = tonumber(autofarmgoldcooldown.Value) or 0.12
+                local targets = {}
+                for _, r in pairs(workspace:GetChildren()) do
+                    if r:IsA("Model") and (r.Name == "Gold Node" or (r.Name:lower():find("gold") and r.GetAttribute and r:GetAttribute(r, "EntityID"))) then
+                        local eid = r.GetAttribute and r:GetAttribute(r, "EntityID")
+                        local ppart = r.PrimaryPart or r:FindFirstChildWhichIsA("BasePart")
+                        if eid and ppart then
+                            local dist = (ppart.Position - root.Position).Magnitude
+                            if dist <= range then
+                                table.insert(targets, { eid = eid, dist = dist })
+                            end
+                        end
+                    end
+                end
+                if workspace:FindFirstChild("Resources") then
+                    for _, res in pairs(workspace.Resources:GetChildren()) do
+                        if res:IsA("Model") and res.GetAttribute and res:GetAttribute(res, "EntityID") then
+                            local name = res.Name or ""
+                            if name:lower():find("gold") or name:lower():find("raw gold") then
+                                local eid = res:GetAttribute(res, "EntityID")
+                                local ppart = res.PrimaryPart or res:FindFirstChildWhichIsA("BasePart")
+                                if eid and ppart then
+                                    local dist = (ppart.Position - root.Position).Magnitude
+                                    if dist <= range then
+                                        table.insert(targets, { eid = eid, dist = dist })
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                if #targets > 0 then
+                    table.sort(targets, function(a, b) return a.dist < b.dist end)
+                    local sel = {}
+                    for i = 1, math.min(6, #targets) do
+                        table.insert(sel, targets[i].eid)
+                    end
+                    pcall(function() swingtool_local(sel) end)
+                end
+                if packets and packets.Pickup and packets.Pickup.send then
+                    for _, itm in ipairs(workspace:GetChildren()) do
+                        if (itm:IsA("BasePart") or itm:IsA("MeshPart")) and itm.GetAttribute and itm:GetAttribute(itm, "EntityID") then
+                            local name = itm.Name or ""
+                            local lowered = name:lower()
+                            if lowered:find("gold") or lowered:find("coin") then
+                                local eid = itm:GetAttribute(itm, "EntityID")
+                                local dist = (itm.Position - root.Position).Magnitude
+                                if dist <= (range or 30) then
+                                    pcall(function() packets.Pickup.send(eid) end)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(cooldown)
+            end
+        end
+    end)
+end
+
+]]
+
+local merged = orig .. appended
+local fn,err = loadstring(merged)
+if not fn then
+    error("Failed to compile merged script: "..tostring(err))
+else
+    fn()
+end
