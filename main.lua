@@ -1,88 +1,97 @@
--- ✅ Полный рабочий скрипт без вкладки Config
--- Roblox Lua (Luau)
-
--- подгружаем основной скрипт
-local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua)"
+local url = "https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua"
 local orig = game:HttpGet(url)
-
--- исправляем локальные переменные
 orig = orig:gsub("local%s+Library%s*=", "Library =")
 orig = orig:gsub("local%s+Window%s*=", "Window =")
 orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
 
--- добавляем \n, чтобы не вызывало синтаксических ошибок
 local appended = [[
 
--- ======================================================
---   ДОПОЛНИТЕЛЬНЫЙ КОД: ВИЗУАЛ И ФАРМ ГОЛДЫ
--- ======================================================
-
+local packets = (game:GetService("ReplicatedStorage").Modules and require(game:GetService("ReplicatedStorage").Modules.Packets)) or (packets)
 local plr = game.Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local root = char:WaitForChild("HumanoidRootPart")
 local hum = char:WaitForChild("Humanoid")
-local tweenService = game:GetService("TweenService")
+local httpservice = game:GetService("HttpService")
+local tspmo = game:GetService("TweenService")
 
--- 🧱 Очистка старых объектов
 local function ClearOldBoardsAndHelpers()
-for _, obj in ipairs(workspace:GetDescendants()) do
-if obj.Name == "Old Boards" or obj.Name == "RedSticks" or obj.Name == "Board" then
-obj:Destroy()
-end
-end
+    local b = workspace:FindFirstChild("Board")
+    if b then b:Destroy() end
+    local vFolder = workspace:FindFirstChild("WalkerSpheres")
+    if vFolder then vFolder:Destroy() end
+    local folder = workspace:FindFirstChild("RedSticks")
+    if folder then folder:Destroy() end
+    for _, obj in ipairs(workspace:GetDescendants()) do
+        if obj:IsA("MeshPart") and obj.MeshId and tostring(obj.MeshId):find("4823036") then
+            obj:Destroy()
+        elseif obj:IsA("Part") then
+            for _, m in ipairs(obj:GetChildren()) do
+                if m:IsA("SpecialMesh") and m.MeshId and tostring(m.MeshId):find("4823036") then
+                    obj:Destroy()
+                    break
+                end
+            end
+        elseif obj.Name == "Old Boards" then
+            obj:Destroy()
+        end
+    end
 end
 
--- 🔴 Создание балки (красная линия)
 local function CreateWideStick(group, parent, name)
-local startPoint = group[1]
-local endPoint = group[#group]
-if not (startPoint and endPoint) then return end
+    local startPoint = group[1]
+    local endPoint = group[#group]
+    if not (startPoint and endPoint) then return end
 
-```
-local direction = (endPoint - startPoint).Unit
-local distance = (endPoint - startPoint).Magnitude
-local midPoint = (startPoint + endPoint) / 2
+    local direction = (endPoint - startPoint).Unit
+    local distance = (endPoint - startPoint).Magnitude
+    local midPoint = (startPoint + endPoint) / 2
+    local right = Vector3.new(direction.Z, 0, -direction.X)
+    midPoint = midPoint + right * 2
 
-local part = Instance.new("Part")
-part.Size = Vector3.new(10, 0.6, distance)
-part.Anchored = true
-part.CanCollide = true
-part.Material = Enum.Material.Neon
-part.Color = Color3.new(1, 0, 0)
-part.CFrame = CFrame.new(midPoint, midPoint + direction)
-part.Name = name
-part.Parent = parent
-```
+    if name ~= "SigmoPart_3" then
+        midPoint = midPoint - Vector3.new(0, 1.2, 0)
+    else
+        midPoint = midPoint - Vector3.new(0, 0.5, 0)
+    end
 
+    local part = Instance.new("Part")
+    part.Size = Vector3.new(10, 0.6, distance)
+    part.Anchored = true
+    part.CanCollide = true
+    part.Material = Enum.Material.Neon
+    part.Color = Color3.new(1, 0, 0) -- красные балки
+    part.Transparency = 0
+    part.Reflectance = 0.05
+    part.Name = name
+    part.Parent = parent
+    part.CFrame = CFrame.new(midPoint, midPoint + direction)
 end
 
--- 🧩 Визуальная часть
 local function LoadTweensConfig_CreateVisuals()
-ClearOldBoardsAndHelpers()
+    ClearOldBoardsAndHelpers()
 
-```
-local groups = {
-	{
-		Vector3.new(-126.3696, -31.9996, -193.4935),
-		Vector3.new(-125.4963, -27.6570, -197.6518),
-		Vector3.new(-125.5180, -20.3162, -197.8057),
-		Vector3.new(-124.5315, -6.9844, -207.8662),
-	},
-	{
-		Vector3.new(-202.3378, 4.8070, -622.1143),
-		Vector3.new(-206.2624, 17.9093, -624.6749),
-		Vector3.new(-210.2882, 22.7560, -625.7983),
-	},
-	{
-		Vector3.new(-52.6669, -120.2267, -393.7919),
-		Vector3.new(-45.2733, -95.8739, -384.5992),
-		Vector3.new(-43.7066, -89.2775, -380.1008),
-	},
-}
+    local groups = {
+        {
+            Vector3.new(-126.3696, -31.9996, -193.4935),
+            Vector3.new(-125.4963, -27.6570, -197.6518),
+            Vector3.new(-125.5180, -20.3162, -197.8057),
+            Vector3.new(-124.5315, -6.9844, -207.8662),
+        },
+        {
+            Vector3.new(-202.3378, 4.8070, -622.1143),
+            Vector3.new(-206.2624, 17.9093, -624.6749),
+            Vector3.new(-210.2882, 22.7560, -625.7983),
+        },
+        {
+            Vector3.new(-52.6669, -120.2267, -393.7919),
+            Vector3.new(-45.2733, -95.8739, -384.5992),
+            Vector3.new(-43.7066, -89.2775, -380.1008),
+        },
+    }
 
--- 🟢 ТУТ ВСТАВЬ СВОИ ТОЧКИ (Points)
-local Points = {
-	 Vector3.new(-147.6, -34.3, -114.5),
+    
+    local Points = {
+        Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
     Vector3.new(-142.1, -35.2, -134.9),
     Vector3.new(-139.4, -35.1, -145.1),
@@ -1071,73 +1080,186 @@ local Points = {
     Vector3.new(-163.1, -11.1, -124.2),
     Vector3.new(-157.9, -18.6, -121.8),
     Vector3.new(-154.7, -26.7, -121.2),
-    Vector3.new(-149.5, -33.9, -119.1)
-}
+    Vector3.new(-149.5, -33.9, -119.1),
+    }
 
-for i = 1, #Points - 1 do
-	local segment = {Points[i], Points[i + 1]}
-	CreateWideStick(segment, workspace, "Stick_" .. i)
+ 
+    local oldFolder = workspace:FindFirstChild("RedSticks")
+    if oldFolder then oldFolder:Destroy() end
+
+    local folder = Instance.new("Folder")
+    folder.Name = "RedSticks"
+    folder.Parent = workspace
+
+    for i, group in ipairs(groups) do
+        if #group >= 2 then
+            CreateWideStick(group, folder, "SigmoPart_" .. i)
+        end
+    end
+
+    -- создаём розовые точки
+    local oldPointsFolder = workspace:FindFirstChild("PinkPoints")
+    if oldPointsFolder then oldPointsFolder:Destroy() end
+
+    local pointsFolder = Instance.new("Folder")
+    pointsFolder.Name = "PinkPoints"
+    pointsFolder.Parent = workspace
+
+    for _, pos in ipairs(Points) do
+        local sphere = Instance.new("Part")
+        sphere.Shape = Enum.PartType.Ball
+        sphere.Anchored = true
+        sphere.CanCollide = false
+        sphere.Size = Vector3.new(0.5, 0.5, 0.5)
+        sphere.Color = Color3.fromRGB(255, 100, 200) -- 🌸 розовые
+        sphere.Material = Enum.Material.Neon
+        sphere.Position = pos
+        sphere.Parent = pointsFolder
+    end
+
+    -- Сохраняем точки для автоходьбы
+    _G.walkPts = Points
 end
 
-for i, g in ipairs(groups) do
-	CreateWideStick(g, workspace, "SigmoPart_" .. i)
-end
-```
-
-end
-
--- 💰 Фарм голды (основная логика)
-local function StartGoldFarm()
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remote = ReplicatedStorage:FindFirstChild("Event") or ReplicatedStorage:FindFirstChildOfClass("RemoteEvent")
-
-```
-if not Remote then
-	warn("[GOLD FARM] Не найден RemoteEvent в ReplicatedStorage!")
-	return
+local function StartWalkingLoop()
+    local lp = game:GetService("Players").LocalPlayer
+    local humRef = (lp.Character or lp.CharacterAdded:Wait()):WaitForChild("Humanoid")
+    humRef.WalkSpeed = 16
+    task.spawn(function()
+        while true do
+            for _, pos in ipairs(_G.walkPts or {}) do
+                humRef:MoveTo(pos)
+                humRef.MoveToFinished:Wait()
+            end
+            task.wait(0.5)
+        end
+    end)
 end
 
-print("[GOLD FARM] Фарм запущен...")
-
-while task.wait(1) do
-	pcall(function()
-		Remote:FireServer("CollectGold")
-	end)
+-- Добавляем UI элементы
+if not Tabs then
+    if Window then
+        Tabs = {
+            Main = Window:AddTab({ Title = "Main", Icon = "menu" }),
+            Combat = Window:AddTab({ Title = "Combat", Icon = "axe" }),
+            Map = Window:AddTab({ Title = "Map", Icon = "trees" }),
+            Pickup = Window:AddTab({ Title = "Pickup", Icon = "backpack" }),
+            Farming = Window:AddTab({ Title = "Farming", Icon = "sprout" }),
+            FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" }),
+            Extra = Window:AddTab({ Title = "Extra", Icon = "plus" }),
+            Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+        }
+    else
+        Tabs = {}
+    end
 end
-```
 
+if not Tabs.FarmGold and Window then
+    Tabs.FarmGold = Window:AddTab({ Title = "Farm Gold", Icon = "cpu" })
 end
 
--- 🪟 GUI ВКЛАДКИ
-local Window = Library:CreateWindow("Gold & Visuals Control")
-local Tabs = {
-Farm = Window:CreateTab("Farm Gold"),
-Visuals = Window:CreateTab("Visuals")
-}
-
--- Кнопка: старт фарма
-Tabs.Farm:AddButton({
-Title = "Start Gold Farm",
-Description = "Автоматически фармит золото",
-Callback = function()
-task.spawn(StartGoldFarm)
-end
+Tabs.FarmGold:CreateButton({
+    Title = "Delete Old Boards",
+    Callback = function()
+        ClearOldBoardsAndHelpers()
+    end
 })
 
--- Кнопка: визуализация маршрута
-Tabs.Visuals:AddButton({
-Title = "Create Visuals",
-Description = "Создает визуальные балки и точки пути",
-Callback = function()
-LoadTweensConfig_CreateVisuals()
-end
+Tabs.FarmGold:CreateButton({
+    Title = "Load Visual Path",
+    Callback = function()
+        pcall(LoadTweensConfig_CreateVisuals)
+    end
 })
 
--- Config вкладка полностью удалена
+Tabs.FarmGold:CreateButton({
+    Title = "Start Walking Path",
+    Callback = function()
+        pcall(StartWalkingLoop)
+    end
+})
+
+-- Авто-фарм золота
+if Tabs.Farming then
+    local autofarmgoldtoggle = Tabs.Farming:CreateToggle("autofarmgoldtoggle", {
+        Title = "Auto Farm Gold",
+        Default = false
+    })
+    local autofarmgoldrange = Tabs.Farming:CreateSlider("autofarmgoldrange", { Title = "Range", Min = 5, Max = 200, Rounding = 1, Default = 30 })
+    local autofarmgoldcooldown = Tabs.Farming:CreateSlider("autofarmgoldcooldown", { Title = "Swing Delay (s)", Min = 0.01, Max = 1.5, Rounding = 2, Default = 0.12 })
+
+    local function swingtool_local(eids)
+        if packets and packets.SwingTool and packets.SwingTool.send then
+            packets.SwingTool.send(eids)
+        end
+    end
+
+    task.spawn(function()
+        while true do
+            if not autofarmgoldtoggle.Value then
+                task.wait(0.2)
+            else
+                local range = tonumber(autofarmgoldrange.Value) or 30
+                local cooldown = tonumber(autofarmgoldcooldown.Value) or 0.12
+                local targets = {}
+                for _, r in pairs(workspace:GetChildren()) do
+                    if r:IsA("Model") and (r.Name == "Gold Node" or (r.Name:lower():find("gold") and r.GetAttribute and r:GetAttribute(r, "EntityID"))) then
+                        local eid = r.GetAttribute and r:GetAttribute(r, "EntityID")
+                        local ppart = r.PrimaryPart or r:FindFirstChildWhichIsA("BasePart")
+                        if eid and ppart then
+                            local dist = (ppart.Position - root.Position).Magnitude
+                            if dist <= range then
+                                table.insert(targets, { eid = eid, dist = dist })
+                            end
+                        end
+                    end
+                end
+                if workspace:FindFirstChild("Resources") then
+                    for _, res in pairs(workspace.Resources:GetChildren()) do
+                        if res:IsA("Model") and res.GetAttribute and res:GetAttribute(res, "EntityID") then
+                            local name = res.Name or ""
+                            if name:lower():find("gold") or name:lower():find("raw gold") then
+                                local eid = res:GetAttribute(res, "EntityID")
+                                local ppart = res.PrimaryPart or res:FindFirstChildWhichIsA("BasePart")
+                                if eid and ppart then
+                                    local dist = (ppart.Position - root.Position).Magnitude
+                                    if dist <= range then
+                                        table.insert(targets, { eid = eid, dist = dist })
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                if #targets > 0 then
+                    table.sort(targets, function(a, b) return a.dist < b.dist end)
+                    local sel = {}
+                    for i = 1, math.min(6, #targets) do
+                        table.insert(sel, targets[i].eid)
+                    end
+                    pcall(function() swingtool_local(sel) end)
+                end
+                if packets and packets.Pickup and packets.Pickup.send then
+                    for _, itm in ipairs(workspace:GetChildren()) do
+                        if (itm:IsA("BasePart") or itm:IsA("MeshPart")) and itm.GetAttribute and itm:GetAttribute(itm, "EntityID") then
+                            local name = itm.Name or ""
+                            local lowered = name:lower()
+                            if lowered:find("gold") or lowered:find("coin") then
+                                local eid = itm:GetAttribute(itm, "EntityID")
+                                local dist = (itm.Position - root.Position).Magnitude
+                                if dist <= (range or 30) then
+                                    pcall(function() packets.Pickup.send(eid) end)
+                                end
+                            end
+                        end
+                    end
+                end
+                task.wait(cooldown)
+            end
+        end
+    end)
+end
+
 ]]
 
--- объединяем с оригиналом с переводом строки
-local merged = orig .. "\n" .. appended
-
--- выполняем объединённый код
-loadstring(merged)()
+loadstring(orig .. appended)()
