@@ -1075,7 +1075,18 @@ local function LoadTweensConfig_CreateVisuals()
    },
  }
 
-    local oldFolder = workspace:FindFirstChild("RedSticks")
+   for _, pos in ipairs(Points) do
+    local sphere = Instance.new("Part")
+    sphere.Shape = Enum.PartType.Ball
+    sphere.Anchored = true
+    sphere.Size = Vector3.new(0.5, 0.5, 0.5)
+    sphere.Color = Color3.fromRGB(255, 100, 200) -- 🌸 розовый цвет
+    sphere.Material = Enum.Material.Neon
+    sphere.Position = pos
+    sphere.Parent = workspace
+end
+
+   local oldFolder = workspace:FindFirstChild("RedSticks")
     if oldFolder then oldFolder:Destroy() end
 
     local folder = Instance.new("Folder")
