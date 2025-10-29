@@ -1,97 +1,78 @@
-local url = "https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua"
+-- исправленный Roblox Lua скрипт с балками
+
+local url = "[https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua](https://raw.githubusercontent.com/makarloxezz-cpu/goldffram/refs/heads/main/main.lua)"
 local orig = game:HttpGet(url)
+
+-- фикс для локальных переменных
 orig = orig:gsub("local%s+Library%s*=", "Library =")
 orig = orig:gsub("local%s+Window%s*=", "Window =")
 orig = orig:gsub("local%s+Tabs%s*=", "Tabs =")
 
+-- основной фикс: добавляем перевод строки между orig и appended
 local appended = [[
 
-local packets = (game:GetService("ReplicatedStorage").Modules and require(game:GetService("ReplicatedStorage").Modules.Packets)) or (packets)
 local plr = game.Players.LocalPlayer
 local char = plr.Character or plr.CharacterAdded:Wait()
 local root = char:WaitForChild("HumanoidRootPart")
-local hum = char:WaitForChild("Humanoid")
-local httpservice = game:GetService("HttpService")
-local tspmo = game:GetService("TweenService")
 
 local function ClearOldBoardsAndHelpers()
-    local b = workspace:FindFirstChild("Board")
-    if b then b:Destroy() end
-    local vFolder = workspace:FindFirstChild("WalkerSpheres")
-    if vFolder then vFolder:Destroy() end
-    local folder = workspace:FindFirstChild("RedSticks")
-    if folder then folder:Destroy() end
-    for _, obj in ipairs(workspace:GetDescendants()) do
-        if obj:IsA("MeshPart") and obj.MeshId and tostring(obj.MeshId):find("4823036") then
-            obj:Destroy()
-        elseif obj:IsA("Part") then
-            for _, m in ipairs(obj:GetChildren()) do
-                if m:IsA("SpecialMesh") and m.MeshId and tostring(m.MeshId):find("4823036") then
-                    obj:Destroy()
-                    break
-                end
-            end
-        elseif obj.Name == "Old Boards" then
-            obj:Destroy()
-        end
-    end
+for _, obj in ipairs(workspace:GetDescendants()) do
+if obj.Name == "Old Boards" then
+obj:Destroy()
+end
+end
 end
 
 local function CreateWideStick(group, parent, name)
-    local startPoint = group[1]
-    local endPoint = group[#group]
-    if not (startPoint and endPoint) then return end
+local startPoint = group[1]
+local endPoint = group[#group]
+if not (startPoint and endPoint) then return end
 
-    local direction = (endPoint - startPoint).Unit
-    local distance = (endPoint - startPoint).Magnitude
-    local midPoint = (startPoint + endPoint) / 2
-    local right = Vector3.new(direction.Z, 0, -direction.X)
-    midPoint = midPoint + right * 2
+```
+local direction = (endPoint - startPoint).Unit
+local distance = (endPoint - startPoint).Magnitude
+local midPoint = (startPoint + endPoint) / 2
 
-    if name ~= "SigmoPart_3" then
-        midPoint = midPoint - Vector3.new(0, 1.2, 0)
-    else
-        midPoint = midPoint - Vector3.new(0, 0.5, 0)
-    end
+local part = Instance.new("Part")
+part.Size = Vector3.new(10, 0.6, distance)
+part.Anchored = true
+part.CanCollide = true
+part.Material = Enum.Material.Neon
+part.Color = Color3.new(1, 0, 0)
+part.Name = name
+part.CFrame = CFrame.new(midPoint, midPoint + direction)
+part.Parent = parent
+```
 
-    local part = Instance.new("Part")
-    part.Size = Vector3.new(10, 0.6, distance)
-    part.Anchored = true
-    part.CanCollide = true
-    part.Material = Enum.Material.Neon
-    part.Color = Color3.new(1, 0, 0) -- красные балки
-    part.Transparency = 0
-    part.Reflectance = 0.05
-    part.Name = name
-    part.Parent = parent
-    part.CFrame = CFrame.new(midPoint, midPoint + direction)
 end
 
 local function LoadTweensConfig_CreateVisuals()
-    ClearOldBoardsAndHelpers()
+ClearOldBoardsAndHelpers()
 
-    local groups = {
-        {
-            Vector3.new(-126.3696, -31.9996, -193.4935),
-            Vector3.new(-125.4963, -27.6570, -197.6518),
-            Vector3.new(-125.5180, -20.3162, -197.8057),
-            Vector3.new(-124.5315, -6.9844, -207.8662),
-        },
-        {
-            Vector3.new(-202.3378, 4.8070, -622.1143),
-            Vector3.new(-206.2624, 17.9093, -624.6749),
-            Vector3.new(-210.2882, 22.7560, -625.7983),
-        },
-        {
-            Vector3.new(-52.6669, -120.2267, -393.7919),
-            Vector3.new(-45.2733, -95.8739, -384.5992),
-            Vector3.new(-43.7066, -89.2775, -380.1008),
-        },
-    }
+```
+-- 🔴 НЕ УДАЛЯТЬ! Это твои балки (groups)
+local groups = {
+	{
+		Vector3.new(-126.3696, -31.9996, -193.4935),
+		Vector3.new(-125.4963, -27.6570, -197.6518),
+		Vector3.new(-125.5180, -20.3162, -197.8057),
+		Vector3.new(-124.5315, -6.9844, -207.8662),
+	},
+	{
+		Vector3.new(-202.3378, 4.8070, -622.1143),
+		Vector3.new(-206.2624, 17.9093, -624.6749),
+		Vector3.new(-210.2882, 22.7560, -625.7983),
+	},
+	{
+		Vector3.new(-52.6669, -120.2267, -393.7919),
+		Vector3.new(-45.2733, -95.8739, -384.5992),
+		Vector3.new(-43.7066, -89.2775, -380.1008),
+	},
+}
 
-    
-    local Points = {
-        Vector3.new(-147.6, -34.3, -114.5),
+-- 🟢 ВСТАВЬ СВОИ ПОИНТЫ СЮДА:
+local Points = {
+	 Vector3.new(-147.6, -34.3, -114.5),
     Vector3.new(-144.8, -35.0, -125.0),
     Vector3.new(-142.1, -35.2, -134.9),
     Vector3.new(-139.4, -35.1, -145.1),
@@ -1080,48 +1061,26 @@ local function LoadTweensConfig_CreateVisuals()
     Vector3.new(-163.1, -11.1, -124.2),
     Vector3.new(-157.9, -18.6, -121.8),
     Vector3.new(-154.7, -26.7, -121.2),
-    Vector3.new(-149.5, -33.9, -119.1),
-    }
+    Vector3.new(-149.5, -33.9, -119.1)
+}
 
- 
-    local oldFolder = workspace:FindFirstChild("RedSticks")
-    if oldFolder then oldFolder:Destroy() end
-
-    local folder = Instance.new("Folder")
-    folder.Name = "RedSticks"
-    folder.Parent = workspace
-
-    for i, group in ipairs(groups) do
-        if #group >= 2 then
-            CreateWideStick(group, folder, "SigmoPart_" .. i)
-        end
-    end
-
-    -- создаём розовые точки
-    local oldPointsFolder = workspace:FindFirstChild("PinkPoints")
-    if oldPointsFolder then oldPointsFolder:Destroy() end
-
-    local pointsFolder = Instance.new("Folder")
-    pointsFolder.Name = "PinkPoints"
-    pointsFolder.Parent = workspace
-
-    for _, pos in ipairs(Points) do
-        local sphere = Instance.new("Part")
-        sphere.Shape = Enum.PartType.Ball
-        sphere.Anchored = true
-        sphere.CanCollide = false
-        sphere.Size = Vector3.new(0.5, 0.5, 0.5)
-        sphere.Color = Color3.fromRGB(255, 100, 200) -- 🌸 розовые
-        sphere.Material = Enum.Material.Neon
-        sphere.Position = pos
-        sphere.Parent = pointsFolder
-    end
+-- визуализация поинтов
+for i = 1, #Points - 1 do
+	local group = {Points[i], Points[i + 1]}
+	CreateWideStick(group, workspace, "Stick_" .. i)
 end
 
--- вызываем визуализацию
+-- визуализация групп (балок)
+for i, g in ipairs(groups) do
+	CreateWideStick(g, workspace, "SigmoPart_" .. i)
+end
+```
+
+end
+
 LoadTweensConfig_CreateVisuals()
 
 ]]
 
-
-loadstring(orig .. appended)()
+local merged = orig .. "\n" .. appended
+loadstring(merged)()
